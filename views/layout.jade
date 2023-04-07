@@ -1,0 +1,14 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body
+    if loginUser
+      #dvUserInfo 
+        当前用户： 
+        b #{loginUser['username']} (#{loginUser['nickname']})
+        span
+        span
+        a(href="/logout") Logout
+    block content

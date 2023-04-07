@@ -1,0 +1,12 @@
+{
+    "users": {
+        "tahl": {
+            "nickname": "lzm",
+            "password": "$2a$10$oiRAXjMuEnzU8aE9d61UJe9myV9BCxDSaLhDu/LZMIRyJhlzd/MXm"
+        },
+        "gfc": {
+            "nickname": "alexgong",
+            "password": "$2a$10$oiRAXjMuEnzU8aE9d61UJe9myV9BCxDSaLhDu/LZMIRyJhlzd/MXm"
+        }
+    }
+}

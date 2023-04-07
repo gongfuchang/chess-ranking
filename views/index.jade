@@ -1,0 +1,39 @@
+extends layout
+block header 
+
+block content
+  script(src='/javascripts/prototype.js')
+  script(src='/javascripts/process.js')  
+  script(src='/javascripts/FusionCharts.js')
+
+  #dvMain      
+    #dvOptionsBar
+      button(onclick='loadCurrentRate("men")') 男100 
+      button(onclick='loadCurrentRate("women")') 女100
+      span
+      button(onclick='loadCurrentRate("chinese", 55)') 中国50
+      button(onclick='loadCurrentRate("chinese-women", 55)') 中国女50
+      span
+      button(onclick='loadCurrentRate("juniors", 20)') 青年20
+      button(onclick='loadCurrentRate("girls", 20)') 青年女20
+      button(onclick='analyseData()' id='btnAnalyze' style={display: 'none'}) 分析数据
+
+    #dvLoadingTips(style={display: 'none'})
+      font loading...
+
+    #dvHiddenContent(style={display: 'none'})
+
+    table 
+      tbody 
+        tr 
+          td
+            #dvCharts(style={width: '550px'})
+
+    #dvChartDetails(style={display: 'none'})
+    #dvContent
+
+    script(src='/javascripts/render.js')
+
+    textarea(id="txtContent" style={width: '1px', height: '1px'}) 
+
+      
