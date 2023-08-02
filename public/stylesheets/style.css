@@ -60,26 +60,27 @@ body section{
   text-decoration: none;
 }
 #dvOptionsBar, #dvCustomFilterBar{
-  padding: 8px 20px
+  padding: 12px 20px;
+  width: auto;
+  text-align: left;
+  background: #f6f6f6
 }
-#dvOptionsBar span, #dvUserInfo span{
-  margin-left: 10px;
-}
+
 #dvOptionsBar a{
   margin-right: 5px;
   width: 100px;
   cursor: pointer;
   color: #085dc4;
-  border-bottom: #9cbfe9 1px dashed;
   text-decoration: none;
 }
 #dvCustomFilterBar span.delButton{
-  margin-right: 15px;
+  margin-right: 10px;
 }
 #dvCustomFilterBar span.delButton a{
   color: #dd1a2a;
   border-bottom: 0px;
   text-decoration: none;
+  padding: 3px 4px;
 }
 #dvCustomOptions select{
   height: 24px;
@@ -87,8 +88,12 @@ body section{
 #dvCustomFilterBar a{
   color: #105f42;
   text-decoration: none;
-  border-bottom: #9cbfe9 1px dashed;
 }
+#dvCustomFilterBar span {
+  /* background-color: chartreuse;
+  margin-bottom: 40px !important; */
+}
+
 #dvCustomOptions select, #dvCustomOptions button{
   margin-right: 5px;
   width: 100px;
@@ -105,7 +110,7 @@ body section{
   position: absolute; right: 10px; top: 70px; color: #dd1a2a
 }
 #dvContent{
-  border-top: 1px solid #cccccc;
+  border-top: 1px solid #eeeeee;
   padding: 8px;
   padding-left: 20px;
 }

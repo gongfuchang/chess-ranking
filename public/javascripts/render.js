@@ -43,7 +43,9 @@ function loadFilters(){
     var htmlContent = filters.length > 0 ? '<span>自定义查找：</span>' : '';
     filters.forEach(function(ft){
         htmlContent += `
-            <a onclick="doCustomSearchByFilter('${ft[0]}', this)" href='#'>${ft[0]}</a>
+            <span>
+                <a onclick="doCustomSearchByFilter('${ft[0]}', this)" href='#'>${ft[0]}</a>
+            </span>
             <span class='delButton'>(<a onclick="doDeleteFilter('${ft[0]}')" href='#' title='点击删除' class='btn'>X</a>)</span>
         `;
     });
