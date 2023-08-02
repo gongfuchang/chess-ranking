@@ -1,3 +1,4 @@
+const FILTER_STORAGE_NAME = "com.dan.chess.rank.filters";
 
 Object.extend(String.prototype, {
     trim: function () {
@@ -10,30 +11,149 @@ function loadConfig() {
     MyFile.loadConfigEntity(function () {
         toggleLoadingTips(false);
     });
+
+    loadFilters();
+
+    document.body.style['background-image'] = `url('/images/bg-${Math.ceil(Math.random() * 5)}.jpg')`;
 }
 function toggleLoadingTips(show) {
     show ? Element.show('dvLoadingTips') : Element.hide('dvLoadingTips');
-    btns = document.getElementsByTagName('button');
-    for (let index = 0; index < btns.length; index++) {
-        btns[index].disabled = show;
-    }
+    document.querySelectorAll('#dvMain button').forEach(function(elm){
+        elm.disabled = show;
+    })
+    document.querySelectorAll('#dvMain a').forEach(function(elm){
+        elm.style['pointer-events'] = show ? 'none' : 'all';
+    })
 
 }
 function prefixInt(num, length) {
     return (num / Math.pow(10, length)).toFixed(length).substring(2);
 }
-function loadCurrentRate(mode, truncat_num) {
+function doDeleteFilter(id){
+    var savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}');
+    if(savedFilters[id] && confirm(`确定要删除【${id}】？`)){
+        delete savedFilters[id];
+        localStorage.setItem(FILTER_STORAGE_NAME, JSON.stringify(savedFilters));
+        loadFilters();
+    }
+}
+function loadFilters(){
+    var filters = Object.entries(JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}')); 
+    var container = document.getElementById('dvCustomFilterBar');
+    var htmlContent = filters.length > 0 ? '<span>自定义查找：</span>' : '';
+    filters.forEach(function(ft){
+        htmlContent += `
+            <a onclick="doCustomSearchByFilter('${ft[0]}', this)" href='#'>${ft[0]}</a>
+            <span class='delButton'>(<a onclick="doDeleteFilter('${ft[0]}')" href='#' title='点击删除' class='btn'>X</a>)</span>
+        `;
+    });
+    if(htmlContent){
+        container.innerHTML = htmlContent;
+        Element.show(container);
+    }
+    
+}
+function saveFilter(){
+    var opt = collectSearchOpt();
+    var desc = Object.entries(opt).filter(it=>it[1]).map( it => `${it[0]} = ${it[1]}`).join(', ');
+    var name = prompt(`请在保存如下查询参数时起个名字：${desc}`, getFilterName(opt)); // TODO auto name
+    var savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}');
+    if(name){
+        // save to storage
+        savedFilters[name] = opt;
+        localStorage.setItem(FILTER_STORAGE_NAME, JSON.stringify(savedFilters));
+        loadFilters();
+    }
+}
+function getFilterName(opt){
+    var form = document.querySelector('#customSearch');
+    var items = Object.entries(opt).filter(it=>it[1]); // 规律掉“表头”
+    var result = [];
+    items.forEach(function(item){
+        var key = item[0], value = item[1]; // 'country', 'RUS'
+        var selectElm = form[key];
+        var found = Array.from(selectElm.options).map(it=>[it.value, it.text]).find(it => it[0] == value); // ['RUS', '俄罗斯']
+        result.push(found[1]);
+    });
+    return result.join('-');
+}
+function doCustomSearchByFilter(id, sourceElm){
+    var savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}');
+    var filter = savedFilters[id];
+    if(filter){
+        doCustomSearch(filter, sourceElm);
+    }
+}
+function collectSearchOpt(){
+    var form = document.querySelector('#customSearch');
+    opt = {
+        'country': form.country.value,
+        'gender': form.gender.value,
+        'rating': form.rating.value,
+        'topn': form.topn.value
+    }
+    if(parseInt(form.minAge.value) <= parseInt(form.maxAge.value)){
+        form.age1.value = '';
+        form.age2.value = '';
+    }else{
+        opt['minAge'] = form.minAge.value
+        opt['maxAge'] = form.maxAge.value
+    }
+    return opt;
+}
+
+function updateSearchOptStatus(opt){
+    // opt: {'country': 'RUS', 'ageMin': 20 ...}
+    var form = document.querySelector('#customSearch');
+    Array.from(form.querySelectorAll('select')).forEach(function(elm){
+        var key = elm.name; // 'country' -> 'RUS'
+        elm.value = opt[key] || (key == 'rating' ? 'standard' : '');
+        // set style of event source link element
+        var source = event.target || event.srcElement;
+    });
+}
+function updateFilterLinkStatus(sourceElm){
+    if(!sourceElm) return;
+    console.log(sourceElm)
+    var currLinkText = sourceElm.text;
+    var links = Array.from(document.querySelectorAll('#dvMain a:not(.btn)'))
+    links.filter(it=>it.text.trim() == currLinkText)[0].setAttribute('class', 'hightlight');
+    links.filter(it=>it.text.trim() != currLinkText).map(it=>it.setAttribute('class', ''));
+}
+function doCustomSearch(opt, sourceElm){
+    if(opt){
+        loadCurrentRate('custom', opt.topn, opt);
+        updateSearchOptStatus(opt);
+        updateFilterLinkStatus(sourceElm);
+        return;
+    }
+    var opt = collectSearchOpt();
+    loadCurrentRate('custom', opt.topn, opt);     
+}
+function showCustomSearch(){
+    Element.show('dvCustomOptions')
+}
+
+function getCurrentDate(){
+    dt = new Date();
+    return dt.getFullYear() + '-' + prefixInt(dt.getMonth() + 1, 2) + '-01';
+}
+function loadCurrentRate(mode, truncat_num, opt) {
     var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart, has_trend = true, complex = true;
     switch (mode) {
+        case 'custom':
+            remotePart = `a_top_var.php?continent=0&country=${opt.country||''}&rating=${opt.rating||'standard'}&gender=${opt.gender||''}&age1=${opt.minAge||''}&age2=${opt.maxAge||''}&period=1&period2=1`;
+            has_trend = false;
+            complex = false;
+            break;        
         case 'chinese':
             remotePart = 'a_top_var.php?continent=0&country=CHN&rating=standard&gender=&age1=0&age2=0&period=1&period2=1';
             has_trend = false;
             complex = false;
             break;
         case 'chinese-women':
-            remotePart = 'a_top_var.php?continent=0&country=CHN&rating=standard&gender=F&age1=0&age2=0&period=';
-            dt = new Date();
-            remotePart += dt.getFullYear() + '-' + prefixInt(dt.getMonth() + 1, 2) + '-01';
+            remotePart = 'a_top_var.php?continent=0&country=CHN&rating=standard&gender=F&age1=0&age2=0&period=';           
+            remotePart += getCurrentDate();
             remotePart += '&period2=1';
             has_trend = false;
             complex = false;
@@ -57,7 +177,7 @@ function loadCurrentRate(mode, truncat_num) {
                 renderTable(sContent, mode, truncat_num, has_trend, complex);
 
             } catch (err) {
-                console.err(err);
+                console.error(err);
                 //TODO
                 alert('请求 Fide 数据发生错误，请重新请求试试。');
                 toggleLoadingTips(false);
@@ -217,7 +337,7 @@ function renderTable(sContent, mode, truncat_num, has_trend, complex) {
         sTableHtml += '<tr class="' + (bIsNoneRecord ? 'o-alert' : (count % 2 == 0 ? 'e-row' : 'o-row')) + '">';
         sTableHtml += '<td align=center>' + data.rank + '</td>';
         // sTableHtml += '<td align=right><font color=' + (rankTrend > 0 ? 'green' : 'gray') + '>' + rankTrend + '</font></td>';
-        sTableHtml += '<td><font color=' + (data.country == '中国' ? 'red' : '') + '>' + data.name + '</font></td>';
+        sTableHtml += '<td><font color=' + (data.country == '中国' ? '#dd1a2a' : '') + '>' + data.name + '</font></td>';
         sTableHtml += '<td>' + data.zname + '</td>';
         sTableHtml += '<td align="center">' + (bIsNoneRecord ? '&nbsp;' : ('<a href="#" onclick="editRow(' + data.id + ', this); return false;"><img src="images/edit.png" width="20" height="20" border=0></a>')) + '</td>';
         // sTableHtml += '<td>' + data.title + '</td>';
@@ -234,9 +354,9 @@ function renderTable(sContent, mode, truncat_num, has_trend, complex) {
     }
     sTableHtml += '</table>';
 
-    var tips = '共获取到（<b>' + dataRows.length + '</b>）条' + (MyConfig.getModeHash()[mode]  ? MyConfig.getModeHash()[mode] : '') + '等级分记录，其中中国选手[<font color="#e76766""">' + chnPlayersCount + '</font>]名。【名次升降】中的“*”表示上次该选手未进入 Top100 排名';
+    var tips = `共获取到（<b>${dataRows.length}</b>）条${MyConfig.getModeHash()[mode]  ? MyConfig.getModeHash()[mode] : ''}等级分记录，展示其中 ${truncat_num} 条，其中中国选手[<font color="#dd1a2a""">${chnPlayersCount}</font>]名。`;
 
-    tips += (countNone > 0) ? ', 同时有（<font color="#e76766">' + countNone + '</font>）人未在库中或更易了英文名，需要处理:' : '';
+    tips += (countNone > 0) ? ', 同时有（<font color="#dd1a2a">' + countNone + '</font>）人未在库中或更易了英文名，需要处理:' : '';
     sNoneRecHtml = '<table id="tblConfig2Update" style="background: #737E88" border="0" cellspacing="1" cellpadding="3"><tr style="text-align: center; background: #4c67ac; color: #ffffff"><td><b>排名</b></td><td><b>编号</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>国家</b></td><td><b>等级分</b></td><td><b>出生年份</b></td></tr>' + sNoneRecHtml;
     sNoneRecHtml += '</table>';
     tips += sNoneRecHtml;
@@ -440,7 +560,7 @@ function showDetails(category, sIds) {
             sTableHtml += '<tr class="' + (i % 2 == 0 ? 'e-row' : 'o-row') + '">';
             sTableHtml += '<td align=center>' + (i + 1) + '</td>';
             sTableHtml += '<td align=center>' + data.rank + '</td>';
-            sTableHtml += '<td><font color=' + (data.country == '中国' ? 'red' : '') + '>' + data.name + '</font></td>';
+            sTableHtml += '<td><font color=' + (data.country == '中国' ? '#dd1a2a' : '') + '>' + data.name + '</font></td>';
             sTableHtml += '<td>' + data.zname + '</td>';
             sTableHtml += '<td>' + data.title + '</td>';
             sTableHtml += '<td>' + data.country + '</td>';
@@ -558,4 +678,7 @@ Object.extend(Math, {
     }
 });
 
+function getCountryOpt(){
+    return MyConfig.getCountryHash()
+}
 loadConfig();
