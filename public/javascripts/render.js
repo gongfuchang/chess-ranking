@@ -94,9 +94,9 @@ function collectSearchOpt(){
         'rating': form.rating.value,
         'topn': form.topn.value
     }
-    if(parseInt(form.minAge.value) <= parseInt(form.maxAge.value)){
-        form.age1.value = '';
-        form.age2.value = '';
+    if(parseInt(form.minAge.value) > parseInt(form.maxAge.value)){
+        form.ageMin.value = '';
+        form.ageMax.value = '';
     }else{
         opt['minAge'] = form.minAge.value
         opt['maxAge'] = form.maxAge.value
