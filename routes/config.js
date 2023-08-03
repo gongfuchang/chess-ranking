@@ -84,6 +84,7 @@ router.post('/save', function(req, res, nex){
         toUpdate.set(player);
         req.db.save();
     });
+    return res.send({message: "config saved successfully"});
 
 });
 
