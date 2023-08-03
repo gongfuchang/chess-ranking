@@ -10,15 +10,18 @@ body {
 }
 body >div {margin:auto;}
 a {
-  color: #9cbfe9;
+  color: #085dc4;
   padding: 3px 8px;
-  /* pointer-events: none; */
+  text-decoration: none;
 }
 body header{
   display: flex;
   background:#50618d; 
   vertical-align: middle;
   height: 50px;
+}
+body header a{
+  color:#FFF
 }
 #logo{
   width: 90%;
@@ -59,24 +62,29 @@ body section{
   border-bottom: none;
   text-decoration: none;
 }
-#dvOptionsBar, #dvCustomFilterBar{
-  padding: 12px 20px;
+
+#dvFilters{
   width: auto;
   text-align: left;
-  background: #f6f6f6
+  background: #f6f6f6;
+  padding: 12px 20px;
+}
+#dvReservedFilters, #dvCustomFilters{
+  padding: 3px 0px;
 }
 
-#dvOptionsBar a{
+#dvReservedFilters a{
   margin-right: 5px;
   width: 100px;
   cursor: pointer;
   color: #085dc4;
   text-decoration: none;
+  font-size: 13px;
 }
-#dvCustomFilterBar span.delButton{
+#dvCustomFilters span.delButton{
   margin-right: 10px;
 }
-#dvCustomFilterBar span.delButton a{
+#dvCustomFilters span.delButton a{
   color: #dd1a2a;
   border-bottom: 0px;
   text-decoration: none;
@@ -85,15 +93,26 @@ body section{
 #dvCustomOptions select{
   height: 24px;
 }
-#dvCustomFilterBar a{
+#dvCustomFilters a{
   color: #105f42;
-  text-decoration: none;
+  text-decoration: none;  
+  font-size: 13px;
 }
-#dvCustomFilterBar span {
+#dvCustomFilters span {
   /* background-color: chartreuse;
   margin-bottom: 40px !important; */
 }
 
+#dvHints{
+  margin: 12px auto 8px auto;
+}
+#divOperationBar{
+  margin: 12px auto;
+}
+#divOperationBar button{
+  margin-right: 5px;
+  width: 100px
+}
 #dvCustomOptions select, #dvCustomOptions button{
   margin-right: 5px;
   width: 100px;
@@ -114,50 +133,69 @@ body section{
   padding: 8px;
   padding-left: 20px;
 }
-#tblContent{
-  margin: 10px 0px;
+
+
+table thead tr {
+  height: 35px;
+  background: #334166;
 }
-#tblContent tr td{
-  padding: 4px 10px;
+table thead th {
+  font-size: 14px;
+  color: #fff;
+  line-height: 1.2;
+  font-weight: unset;
+  padding: 4px  8px;
 }
-#tblConfig2Update{
-  margin-top: 10px;
+table {
+  border-spacing: 1;
+  border-collapse: collapse;
+  background: #f6f6f6;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0 auto;
+  position: relative;
 }
 
-.e-row{
-  background: #ffffff;
+tbody tr {
+  font-size: 13px;
+  color: #555555;
+  line-height: 1.2;
+  font-weight: unset;
 }
-.o-row{
-  background: #E2EDFE;
+tbody tr.highlight{
+  background: #e710101a!important;
 }
-.o-alert{
- background: #FCF0D1;
+tbody tr.o-alert{
+  background: rgb(251, 243, 213)!important;
 }
-#dvCharts span{
- margin: 2px 1px;
+
+td {
+  display: table-cell;
+  vertical-align: inherit;
+  padding: 4px  2px;
 }
-#dvChartDetails td{
- white-space: nowrap;
+td.flag-wrapper{
+  display: flex;
+  align-items:center;
+  padding-top: 7px;
 }
-#dvChartDetails table{
- border: 3px solid #f6f6f6;
+td.flag-wrapper img{
+  margin-right: 5px;
 }
-.focusTd{
- font-weight: bold;
- color: green;
+tbody tr:nth-child(even) {
+  background: #f5f5f5
 }
-.separator_bar{
- height: 20px;
+tbody tr:nth-child(odd) {
+  background: #FFF
 }
-.tipslist{
- border-collapse: collapse;
-}
-.tipslist td{
- padding: 4px;
- border: 1px solid #f5f5f5;
-}
+
+
+
 
 #txtContent{
   width: 11px;
   height: 11px;
+}
+#dvLogin{
+  margin: 20px auto;
 }

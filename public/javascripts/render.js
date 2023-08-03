@@ -39,7 +39,7 @@ function doDeleteFilter(id){
 }
 function loadFilters(){
     var filters = Object.entries(JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}')); 
-    var container = document.getElementById('dvCustomFilterBar');
+    var container = $('dvCustomFilters');
     var htmlContent = filters.length > 0 ? '<span>自定义查找：</span>' : '';
     filters.forEach(function(ft){
         htmlContent += `
@@ -116,7 +116,7 @@ function updateSearchOptStatus(opt){
 }
 function updateFilterLinkStatus(sourceElm){
     if(!sourceElm) return;
-    console.log(sourceElm)
+    // console.log(sourceElm)
     var currLinkText = sourceElm.text;
     var links = Array.from(document.querySelectorAll('#dvMain a:not(.btn)'))
     links.filter(it=>it.text.trim() == currLinkText)[0].setAttribute('class', 'hightlight');
@@ -124,13 +124,13 @@ function updateFilterLinkStatus(sourceElm){
 }
 function doCustomSearch(opt, sourceElm){
     if(opt){
-        loadCurrentRate('custom', opt.topn, opt);
+        loadCurrentRate(opt);
         updateSearchOptStatus(opt);
         updateFilterLinkStatus(sourceElm);
         return;
     }
     var opt = collectSearchOpt();
-    loadCurrentRate('custom', opt.topn, opt);     
+    loadCurrentRate(opt);     
 }
 function showCustomSearch(){
     Element.show('dvCustomOptions')
@@ -140,32 +140,1140 @@ function getCurrentDate(){
     dt = new Date();
     return dt.getFullYear() + '-' + prefixInt(dt.getMonth() + 1, 2) + '-01';
 }
-function loadCurrentRate(mode, truncat_num, opt) {
-    var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart, has_trend = true, complex = true;
-    switch (mode) {
-        case 'custom':
-            remotePart = `a_top_var.php?continent=0&country=${opt.country||''}&rating=${opt.rating||'standard'}&gender=${opt.gender||''}&age1=${opt.minAge||''}&age2=${opt.maxAge||''}&period=1&period2=1`;
-            has_trend = false;
-            complex = false;
-            break;        
-        case 'chinese':
-            remotePart = 'a_top_var.php?continent=0&country=CHN&rating=standard&gender=&age1=0&age2=0&period=1&period2=1';
-            has_trend = false;
-            complex = false;
-            break;
-        case 'chinese-women':
-            remotePart = 'a_top_var.php?continent=0&country=CHN&rating=standard&gender=F&age1=0&age2=0&period=';           
-            remotePart += getCurrentDate();
-            remotePart += '&period2=1';
-            has_trend = false;
-            complex = false;
-            break;
-        default:
-            remotePart = 'a_top.php?list=' + mode;
-            if(mode == 'junior' || mode == 'girls') has_trend = false;
-            break;
+function loadCurrentRate(options) {
+    var opt = options || window.currentSearchOptions;
+    if(!opt){
+        alert('找不到查找数据的参数！请重新点击过滤器或者查找按钮。');
+        return;
     }
+
+    var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart, has_trend = true, complex = true;
+    remotePart = `a_top_var.php?continent=0&country=${opt.country||''}&rating=${opt.rating||'standard'}&gender=${opt.gender||''}&age1=${opt.minAge||''}&age2=${opt.maxAge||''}&period=1&period2=1`;
+           
     sUrl += encodeURIComponent(remotePart);
+    if(true){
+        content = `
+        
+        <div class="title-page-sm col-12 " style="padding-left: 10px;" id="f1" ">PERIOD: AUGUST 2023 <br> RANK STANDARD RATING WORLD   AGE: 23 AND YOUNGER</div>
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>											
+                <th>Name</th>
+                <th>Title</th>
+                <th>Fed</th>
+                <th>Rating</th>
+                <th>B-Year</th>
+            </tr>
+            </thead>
+            <tr>
+            <td>1</td>
+            <td><a href=/profile/12573981>Firouzja, Alireza</a></td>
+            <td>GM</td>
+            <td class=" flag-wrapper">
+            <img src="/svg/FRA.svg" height=20> FRA
+            </td>
+            <td>2777</td>
+
+            <td>2003</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td><a href=/profile/46616543>Gukesh D</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2751</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td><a href=/profile/14204118>Abdusattorov, Nodirbek</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/UZB.svg" height=20> UZB
+                </td>
+                <td>2725</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td><a href=/profile/25059530>Praggnanandhaa R</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2707</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td><a href=/profile/35009192>Erigaisi Arjun</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2704</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td><a href=/profile/12539929>Maghsoodloo, Parham</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IRI.svg" height=20> IRI
+                </td>
+                <td>2702</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td><a href=/profile/12940690>Keymer, Vincent</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/GER.svg" height=20> GER
+                </td>
+                <td>2701</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td><a href=/profile/1226380>Deac, Bogdan-Daniel</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ROU.svg" height=20> ROU
+                </td>
+                <td>2698</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>9</td>
+                <td><a href=/profile/2040506>Sevian, Samuel</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2698</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>10</td>
+                <td><a href=/profile/12521213>Tabatabaei, M. Amin</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IRI.svg" height=20> IRI
+                </td>
+                <td>2696</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td><a href=/profile/2047640>Xiong, Jeffery</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2693</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>12</td>
+                <td><a href=/profile/24133795>Sarana, Alexey</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/SRB.svg" height=20> SRB
+                </td>
+                <td>2685</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>13</td>
+                <td><a href=/profile/25092340>Nihal Sarin</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2684</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>14</td>
+                <td><a href=/profile/13306553>Martirosyan, Haik M.</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ARM.svg" height=20> ARM
+                </td>
+                <td>2683</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>15</td>
+                <td><a href=/profile/24175439>Esipenko, Andrey</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FID.svg" height=20> FID
+                </td>
+                <td>2683</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>16</td>
+                <td><a href=/profile/14129574>Shevchenko, Kirill</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ROU.svg" height=20> ROU
+                </td>
+                <td>2675</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>17</td>
+                <td><a href=/profile/2093596>Niemann, Hans Moke</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2660</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>18</td>
+                <td><a href=/profile/14205483>Sindarov, Javokhir</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/UZB.svg" height=20> UZB
+                </td>
+                <td>2659</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>19</td>
+                <td><a href=/profile/2056437>Liang, Awonder</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2649</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>20</td>
+                <td><a href=/profile/5084423>Aryan Chopra</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2641</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>21</td>
+                <td><a href=/profile/13306766>Sargsyan, Shant</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ARM.svg" height=20> ARM
+                </td>
+                <td>2639</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>22</td>
+                <td><a href=/profile/358878>Nguyen, Thai Dai Van</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/CZE.svg" height=20> CZE
+                </td>
+                <td>2637</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>23</td>
+                <td><a href=/profile/12923044>Svane, Frederik</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/GER.svg" height=20> GER
+                </td>
+                <td>2634</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>24</td>
+                <td><a href=/profile/1048104>Warmerdam, Max</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/NED.svg" height=20> NED
+                </td>
+                <td>2633</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>25</td>
+                <td><a href=/profile/44155573>Murzin, Volodar</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FID.svg" height=20> FID
+                </td>
+                <td>2631</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>26</td>
+                <td><a href=/profile/14203987>Yakubboev, Nodirbek</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/UZB.svg" height=20> UZB
+                </td>
+                <td>2630</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>27</td>
+                <td><a href=/profile/35028561>Mendonca, Leon Luke</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2628</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>28</td>
+                <td><a href=/profile/35093487>Sadhwani, Raunak</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2624</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>29</td>
+                <td><a href=/profile/1444948>Bjerre, Jonas Buhl</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/DEN.svg" height=20> DEN
+                </td>
+                <td>2624</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>30</td>
+                <td><a href=/profile/13306677>Hakobyan, Aram</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ARM.svg" height=20> ARM
+                </td>
+                <td>2612</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>31</td>
+                <td><a href=/profile/5061245>Puranik, Abhimanyu</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2611</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>32</td>
+                <td><a href=/profile/30909694>Yoo, Christopher Woojin</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2606</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>33</td>
+                <td><a href=/profile/240990>Dardha, Daniel</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/BEL.svg" height=20> BEL
+                </td>
+                <td>2598</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>34</td>
+                <td><a href=/profile/14204223>Vokhidov, Shamsiddin</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/UZB.svg" height=20> UZB
+                </td>
+                <td>2597</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>35</td>
+                <td><a href=/profile/2070901>Burke, John M</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2592</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>36</td>
+                <td><a href=/profile/1188062>Gumularz, Szymon</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/POL.svg" height=20> POL
+                </td>
+                <td>2588</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>37</td>
+                <td><a href=/profile/25060783>Pranav, V</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2588</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>38</td>
+                <td><a href=/profile/1185934>Teclaf, Pawel</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/POL.svg" height=20> POL
+                </td>
+                <td>2586</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>39</td>
+                <td><a href=/profile/3208923>Smirnov, Anton</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AUS.svg" height=20> AUS
+                </td>
+                <td>2586</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>40</td>
+                <td><a href=/profile/13413937>Suleymanli, Aydin</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AZE.svg" height=20> AZE
+                </td>
+                <td>2586</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>41</td>
+                <td><a href=/profile/4262875>Theodorou, Nikolas</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/GRE.svg" height=20> GRE
+                </td>
+                <td>2586</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>42</td>
+                <td><a href=/profile/30920019>Mishra, Abhimanyu</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2585</td>
+
+                <td>2009</td>
+            </tr>
+            <tr>
+                <td>43</td>
+                <td><a href=/profile/14203049>Kuybokarov, Temur</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AUS.svg" height=20> AUS
+                </td>
+                <td>2581</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>44</td>
+                <td><a href=/profile/14926970>Pechac, Jergus</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/SVK.svg" height=20> SVK
+                </td>
+                <td>2580</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>45</td>
+                <td><a href=/profile/8608962>Liu, Yan</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/CHN.svg" height=20> CHN
+                </td>
+                <td>2579</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>46</td>
+                <td><a href=/profile/35042025>Aditya Mittal</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2577</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>47</td>
+                <td><a href=/profile/3518736>Albornoz Cabrera, Carlos Daniel</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/CUB.svg" height=20> CUB
+                </td>
+                <td>2575</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>48</td>
+                <td><a href=/profile/753246>Kozak, Adam</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/HUN.svg" height=20> HUN
+                </td>
+                <td>2574</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>49</td>
+                <td><a href=/profile/865834>Moroni, Luca Jr</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ITA.svg" height=20> ITA
+                </td>
+                <td>2573</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>50</td>
+                <td><a href=/profile/5804418>Tin, Jingyao</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/SGP.svg" height=20> SGP
+                </td>
+                <td>2573</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>51</td>
+                <td><a href=/profile/12576468>Daneshvar, Bardiya</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IRI.svg" height=20> IRI
+                </td>
+                <td>2570</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>52</td>
+                <td><a href=/profile/950122>Ivic, Velimir</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/SRB.svg" height=20> SRB
+                </td>
+                <td>2570</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>53</td>
+                <td><a href=/profile/24198455>Nesterov, Arseniy</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FID.svg" height=20> FID
+                </td>
+                <td>2569</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>54</td>
+                <td><a href=/profile/14165414>Galperin, Platon</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/SWE.svg" height=20> SWE
+                </td>
+                <td>2566</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>55</td>
+                <td><a href=/profile/36083534>Maurizzi, MarcAndria</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FRA.svg" height=20> FRA
+                </td>
+                <td>2564</td>
+
+                <td>2007</td>
+            </tr>
+            <tr>
+                <td>56</td>
+                <td><a href=/profile/895733>Sonis, Francesco</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ITA.svg" height=20> ITA
+                </td>
+                <td>2564</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>57</td>
+                <td><a href=/profile/13405764>Asadli, Vugar</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AZE.svg" height=20> AZE
+                </td>
+                <td>2563</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>58</td>
+                <td><a href=/profile/5078776>Harsha Bharathakoti</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2563</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>59</td>
+                <td><a href=/profile/13515110>Lazavik, Denis</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/BLR.svg" height=20> BLR
+                </td>
+                <td>2560</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>60</td>
+                <td><a href=/profile/1048333>Vrolijk, Liam</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/NED.svg" height=20> NED
+                </td>
+                <td>2558</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>61</td>
+                <td><a href=/profile/13507443>Kazakouski, Valery</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/LTU.svg" height=20> LTU
+                </td>
+                <td>2558</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>62</td>
+                <td><a href=/profile/14531534>Livaic, Leon</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/CRO.svg" height=20> CRO
+                </td>
+                <td>2558</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>63</td>
+                <td><a href=/profile/13409301>Muradli, Mahammad</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AZE.svg" height=20> AZE
+                </td>
+                <td>2554</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>64</td>
+                <td><a href=/profile/14928752>Gazik, Viktor</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/SVK.svg" height=20> SVK
+                </td>
+                <td>2550</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>65</td>
+                <td><a href=/profile/14129850>Matviishen, Viktor</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/UKR.svg" height=20> UKR
+                </td>
+                <td>2550</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>66</td>
+                <td><a href=/profile/24176460>Sorokin, Aleksey</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/RUS.svg" height=20> RUS
+                </td>
+                <td>2547</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>67</td>
+                <td><a href=/profile/12961523>Engel, Luis</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/GER.svg" height=20> GER
+                </td>
+                <td>2547</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>68</td>
+                <td><a href=/profile/44105681>Makarian, Rudik</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FID.svg" height=20> FID
+                </td>
+                <td>2546</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>69</td>
+                <td><a href=/profile/25073060>Koustav Chatterjee</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2546</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>70</td>
+                <td><a href=/profile/24164879>Lomasov, Semyon</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ISR.svg" height=20> ISR
+                </td>
+                <td>2542</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>71</td>
+                <td><a href=/profile/1039792>Van Foreest, Lucas</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/NED.svg" height=20> NED
+                </td>
+                <td>2540</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>72</td>
+                <td><a href=/profile/1159259>Janik, Igor</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/POL.svg" height=20> POL
+                </td>
+                <td>2539</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>73</td>
+                <td><a href=/profile/25072846>Aronyak Ghosh</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2538</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>74</td>
+                <td><a href=/profile/34184934>Dudin, Gleb</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/HUN.svg" height=20> HUN
+                </td>
+                <td>2537</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>75</td>
+                <td><a href=/profile/30901561>Jacobson, Brandon</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2537</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>76</td>
+                <td><a href=/profile/24183555>Afanasiev, Nikita</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/RUS.svg" height=20> RUS
+                </td>
+                <td>2537</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>77</td>
+                <td><a href=/profile/884189>Lodici, Lorenzo</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ITA.svg" height=20> ITA
+                </td>
+                <td>2536</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>78</td>
+                <td><a href=/profile/10613129>Fawzy, Adham</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/EGY.svg" height=20> EGY
+                </td>
+                <td>2533</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>79</td>
+                <td><a href=/profile/46626786>Pranav Anand</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2529</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>80</td>
+                <td><a href=/profile/26017962>Laurent-Paoli, Pierre</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FRA.svg" height=20> FRA
+                </td>
+                <td>2529</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>81</td>
+                <td><a href=/profile/1227190>Gavrilescu, David</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/ROU.svg" height=20> ROU
+                </td>
+                <td>2526</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>82</td>
+                <td><a href=/profile/8610550>Peng, Xiongjian</a></td>
+                <td></td>
+                <td class="flag-wrapper">
+                    <img src="/svg/CHN.svg" height=20> CHN
+                </td>
+                <td>2525</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>83</td>
+                <td><a href=/profile/2099438>Hong, Andrew</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2525</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>84</td>
+                <td><a href=/profile/12809390>Pultinevicius, Paulius</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/LTU.svg" height=20> LTU
+                </td>
+                <td>2525</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>85</td>
+                <td><a href=/profile/1533533>Abdrlauf, Elham</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/NOR.svg" height=20> NOR
+                </td>
+                <td>2523</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>86</td>
+                <td><a href=/profile/5089000>Raja Harshit</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2522</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>87</td>
+                <td><a href=/profile/5097010>Sankalp Gupta</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IND.svg" height=20> IND
+                </td>
+                <td>2522</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>88</td>
+                <td><a href=/profile/1046730>Schoppen, Casper</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/NED.svg" height=20> NED
+                </td>
+                <td>2522</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>89</td>
+                <td><a href=/profile/1632051>Blohberger, Felix</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AUT.svg" height=20> AUT
+                </td>
+                <td>2522</td>
+
+                <td>2002</td>
+            </tr>
+            <tr>
+                <td>90</td>
+                <td><a href=/profile/13506862>Nikitenko, Mihail</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/BLR.svg" height=20> BLR
+                </td>
+                <td>2521</td>
+
+                <td>2000</td>
+            </tr>
+            <tr>
+                <td>91</td>
+                <td><a href=/profile/12572896>Pour Agha Bala, Amirreza</a></td>
+                <td></td>
+                <td class="flag-wrapper">
+                    <img src="/svg/IRI.svg" height=20> IRI
+                </td>
+                <td>2521</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>92</td>
+                <td><a href=/profile/24183750>Lobanov, Sergei</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/FID.svg" height=20> FID
+                </td>
+                <td>2520</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>93</td>
+                <td><a href=/profile/30911370>Wang, Justin</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2520</td>
+
+                <td>2005</td>
+            </tr>
+            <tr>
+                <td>94</td>
+                <td><a href=/profile/13413007>Ahmadzada, Ahmad</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AZE.svg" height=20> AZE
+                </td>
+                <td>2519</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>95</td>
+                <td><a href=/profile/13611860>Kacharava, Nikolozi</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/GEO.svg" height=20> GEO
+                </td>
+                <td>2519</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>96</td>
+                <td><a href=/profile/4902920>Batsuren, Dambasuren</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/MGL.svg" height=20> MGL
+                </td>
+                <td>2519</td>
+
+                <td>2004</td>
+            </tr>
+            <tr>
+                <td>97</td>
+                <td><a href=/profile/30903114>Guo, Arthur</a></td>
+                <td>IM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2517</td>
+
+                <td>2006</td>
+            </tr>
+            <tr>
+                <td>98</td>
+                <td><a href=/profile/1040634>Kevlishvili, Robby</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/NED.svg" height=20> NED
+                </td>
+                <td>2517</td>
+
+                <td>2001</td>
+            </tr>
+            <tr>
+                <td>99</td>
+                <td><a href=/profile/32096585>Henderson de La Fuente, Lance</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/AND.svg" height=20> AND
+                </td>
+                <td>2517</td>
+
+                <td>2003</td>
+            </tr>
+            <tr>
+                <td>100</td>
+                <td><a href=/profile/2069342>Checa, Nicolas</a></td>
+                <td>GM</td>
+                <td class="flag-wrapper">
+                    <img src="/svg/USA.svg" height=20> USA
+                </td>
+                <td>2517</td>
+
+                <td>2001</td>
+            </tr>
+            </table>
+        `;
+        window.currentSearchOptions = opt;
+        renderTable(content, opt.topn);        
+        return;
+    }
+
+    
 
     toggleLoadingTips(true);
     var req = new Ajax.Request(sUrl, {
@@ -189,193 +1297,212 @@ function loadCurrentRate(mode, truncat_num, opt) {
         }
     });
 }
-function renderTable(sContent, mode, truncat_num, has_trend, complex) {
-    //clear cached data
-    for (var i = 0; i < categorys.length; i++) {
-        window.analyzeData[categorys[i]] = {};
-    }
-    Element.update('dvCharts', '');
-    Element.hide('dvChartDetails');
-    window.allRateArr = [];
+const TITLE_HASH = MyConfig.getTitleHash2();
+const FED_HASH = MyConfig.getCountryHash();
+const FIDE_SITE = 'https://ratings.fide.com/'; 
+function updateHeaderDisplay(table){
+	headerHash = {Name: '姓名', Title: '称号', Fed: '棋协', Rating: '等级分', 'B-Year': '出生年份'}
+	table.querySelectorAll('thead th').forEach(function(it){
+		it.innerText= headerHash[it.innerText] || it.innerText;}
+	)	
+}
+function updateContentDisplay(table){
+	rows = table.querySelectorAll('tbody tr').forEach(function(row){
+		// change profile link
+		var cols = row.cells;
+		var nameLink = cols[1].querySelector('a');
+		nameLink.href = FIDE_SITE + nameLink.href.split('/').slice(-2).join('/');
+		nameLink.setAttribute('target', 'blank');
+		
+        // title 
+		var titleCol = cols[2];
+        var titleStr = titleCol.innerText.toLowerCase();
+		titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
+        row.setAttribute('_title', titleStr);
 
-    // 不带 ranking 数据的 6 列, 0-rank, 1: name, 2: country, 3: rate, 4: name-change, 5: birthday,
-    // 简化版不带 ranking 数据的 6 列, 0-rank, 1: name, 2: title, 3: country, 4: rate, 5: birthday,
+        // fed name and country flag
+		var fedCol = cols[3];
+		var fedFlag = fedCol.querySelector('img');
+		fedFlag.src = FIDE_SITE + fedFlag.src.split('/').slice(-2).join('/');
+		fedFlag.setAttribute('height', '16');
+        var fedStr = fedCol.innerText.trim();
+		fedCol.childNodes[2].textContent = FED_HASH[fedStr] || fedCol.innerText
+        row.setAttribute('country', fedStr);
 
-    // <td>1</td>
-    // <td><a href=/profile/8602980>Hou, Yifan</a></td>
-    // <td class="flag-wrapper">
-    //     <img src="/svg/CHN.svg" height=20> CHN
-    // </td>
-    // <td>2628</td>
-    // <td class="name-change">&nbsp;</td>
-    // <td>1994</td>
+        // for chinese fed, hightlight them
+        var opt = window.currentSearchOptions;
+        if(opt?.country != 'CHN' && fedStr == 'CHN') row.className = 'highlight';
+	})	
+}
+
+function extractProfileId(row){
+	if(!row) return null;
+	var cols = row.cells;
+	var nameLink = cols[1].querySelector('a');
+	return nameLink.href.split('/').slice(-1);
+}
+function insertColumn(table, index, title, colInsertFunc){
+	index += 1;
+	var headerCol = table.querySelector(`thead th:nth-of-type(${index})`);
+	if(!headerCol) console.error(`no element in position ${index} of given table!`);
+	var znameHeaderCol = document.createElement('th');
+	znameHeaderCol.innerText = title;
+	headerCol.parentNode.insertBefore(znameHeaderCol, headerCol);
+
+	index -= 1;
+	table.querySelectorAll('#dvContent tbody tr').forEach(function(row){
+		var cols = row.cells;
+		var col = cols[index];
+		col.parentNode.insertBefore(colInsertFunc.call(this, col.parentNode, col), col);
+	});
+	
+}
+function renderTable(sContent, truncat_num) {
+    var dvContent = $('dvContent');
+    Element.update(dvContent, sContent);
+
+    // remove redundent elements
+    dvContent.removeChild(dvContent.querySelector('div.title-page-sm'));
+
+	table = document.querySelector('#dvContent table'); 
 
 
-    // 带 ranking 数据的 7 列， 0-rank, 1: name, 2: country, 3: rate, 4: name-change, 5: birthday, 6： trend
-    // <td>6</td>
-    // <td><a href=/profile/8605114>Lei, Tingjie</a></td>
-    // <td class="flag-wrapper">
-    //     <img src="/svg/CHN.svg" height=20> CHN
-    // </td>
-    // <td>2545</td>
-    // <td class="name-change">&nbsp;</td>
-    // <td>1997</td>
-    // <td>2533 (7)</td>
+	// update table header
+	updateHeaderDisplay(table);
 
-    // TODO 2023-4-1 FIDE 改变查询策略后，查询数据跟之前不一致
-    sContent = sContent.replace(/[\n\r]/ig, '');
-    sContent = sContent.replaceAll(/<img src=\"\/svg\/(\w+)\.svg\" height=20>/ig, '');
+	// update table style
+	updateContentDisplay(table)
 
-    var reg = /<table>.+<\/table>/i
-    var result = sContent.match(reg);
-
-    //reg = /<tr bgcolor=#[a-z]+><td width=10>&nbsp;(\d+)<\/a><\/td><td>&nbsp;<a href=\/top_files.phtml\?id=(\d+) class=tur>([a-z|\,\s|\-|\.]+)<\/a><\/td><td>(&nbsp;[a-z]+)<\/td><td>&nbsp;([A-Z]+)<\/td><td>&nbsp;(\d+)<\/td><td>&nbsp;(\d+)<\/td><td>(&nbsp;){1,2}(\d{0,4}|&nbsp;])<\/td><\/tr>/gi;
-
-
-    //var sTableHtml = '<table style="background: #737E88" border="0" cellspacing="1" cellpadding="3"><tr style="text-align: center; background: #4c67ac"><td><b>排名</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>编辑</b></td><td><b>称号</b></td><td><b>国家</b></td><td><b>等级分</b></td><td><b>出生年月</b></td></tr>';
-    // var sTableHtml = '<table style="background: #737E88" border="0" cellspacing="1" cellpadding="3"><tr style="text-align: center; background: #4c67ac"><td><b>排名</b></td><td><b>名次升降</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>编辑</b></td><td><b>称号</b></td><td><b>国家</b></td><td><b>等级分</b></td><td><b>等级分升降</b></td><td><b>对局数</b></td><td><b>出生年份</b></td></tr>';
-    var sTableHtml = has_trend ? '<table id="tblContent" style="background: #737E88" border="0" cellspacing="1" cellpadding="3"><tr style="text-align: center; background: #4c67ac; color: #ffffff"><td><b>排名</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>编辑</b></td><td><b>国家</b></td><td><b>等级分</b></td><td><b>等级分升降</b></td><td><b>名次升降</b></td><td><b>出生年份</b></td></tr>' :
-        '<table id="tblContent" style="background: #737E88" border="0" cellspacing="1" cellpadding="3"><tr style="text-align: center; background: #4c67ac; color: #ffffff"><td><b>排名</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>编辑</b></td><td><b>国家</b></td><td><b>等级分</b></td><td><b>出生年份</b></td></tr>';
-    var sNoneRecHtml = '';
-    // {'lastUpdateTime': 168, 'players': {'1503014': {'zname': '卡尔森'}}}
-    window.currentConfigEntity = MyFile.getConfigEntity();
-    window.currentConfigMode = mode;
-    window.currentTruncatNum = truncat_num;
-    var hConfigHash = window.currentConfigEntity || {};
-    var hTitleHash = MyConfig.getTitleHash();
-    var hCountryHash = MyConfig.getCountryHash();
-    var countNone = 0, chnPlayersCount = 0;
-
-    var dvHidden = $('dvHiddenContent');
-    Element.update(dvHidden, result);
-    var dataRows = dvHidden.children[0].rows;
-    for (var count = 1; count < dataRows.length; count++) {
-        if (truncat_num && count > truncat_num) {
-            break;
-        }
-        var r = dataRows[count].cells;
-
-        // 带 ranking 数据的 7 列， 0-rank, 1: name, 2: country, 3: rate, 4: name-change, 5: birthday, 6： trend
-        // 简化版的返回数据的 6 列， 0-rank, 1: name, 2: title, 3: country, 4: rate, 5: birthday,
-        var nameCol = r[1];
-        var sName = nameCol.innerText;
-        // <td><a href=/profile/8602980>Hou, Yifan</a></td>
-        var sId = (/profile\/([0-9]+)/i).exec(nameCol.innerHTML)[1];
-        if (!sId) {
-            continue;
-        }
-        var data = {
-            rank: r[0].innerText.trim(),
-            id: sId, name: sName,
-            zname: sName,
-            birthday: r[5].innerText.trim()
-        };
-        Object.extend(data, complex ? {
-            country: r[2].innerText.trim(),
-            rate: r[3].innerText.trim(),
-        } : {
-            title: r[2].innerText.trim(), 
-            country: r[3].innerText.trim(),
-            rate: r[4].innerText.trim(),
+    // truncat rows
+    var rowsCount = table.rows.length - 1; // exclude header row
+    if(truncat_num){
+        table.querySelectorAll('tbody tr').forEach(function(row, index){
+            if(index + 1 > truncat_num) row.parentNode.removeChild(row);
         });
-   
-        var rankTrend = -1, rateTrend = -1;
-        if(has_trend && r.length > 6){          
-            reg = /(\d+)\s\((\d+)\)/ig;
-            trends = reg.exec(r[6].innerText.trim());
-            if(trends){
-                rateTrend = data.rate - trends.slice()[1];
-                rankTrend = trends.slice()[2] - data.rank;
-            }            
-        }
+    }    
 
-        pushAnalyzeData(data);
-        if (data.country == 'CHN') {
-            chnPlayersCount++;
-        }
-        var config = hConfigHash[data.id];
-        var bUpdated = config != null;
-        if (config) {
-            data.zname = config.zname;
-        }
-        var bIsNoneRecord = false;
-        //不在config.csv中，或者不是中文名
-        if (!config || hasNoChnChar(data.zname) || data.name.trim() != config.name.trim()) {
-            bIsNoneRecord = true;
-            countNone++;
-            sNoneRecHtml += makeNoneRecRowHtml(data, false);
-        }
-        //无论怎样，更新内存中的config
-        config = config || {};
-        //backup
-        var oldConfig = Object.extend({}, config);
-        Object.extend(config, {
-            name: data.name,
-            zname: data.zname,
-            country: data.country,
-            title: data.title,
-            games: data.games,
-            birthday: data.birthday,
-            rank: data.rank,
-            rate: data.rate
-        });
-        if (!bUpdated) {
-            Object.extend(config, {
-                lastRank: oldConfig.rank || 0,
-                lastRate: oldConfig.rate || 0
-            });
-        }
-        hConfigHash[data.id] = config;
-        // //trend 相关
-        // var rankTrend = config.lastRank == 0 ? '-' : (config.lastRank - data.rank);
-        // var rateTrend = config.lastRate == 0 ? '-' : (data.rate - config.lastRate);
+	// insert zname column
+	const configHash = MyFile.getConfigEntity();
+	insertColumn(table, 2, '中文名', function(row){
+		var profileId = extractProfileId(row);
+        row.setAttribute('_id', profileId);
 
-        //title 和 country
-        var dataStr = toJSONStr(data);
-        data.country = hCountryHash[data.country] || data.country;
-        data.title = (data.title || '').toUpperCase();//hTitleHash[data.title] || data.title;
-
-        //构造html
-        sTableHtml += '<tr class="' + (bIsNoneRecord ? 'o-alert' : (count % 2 == 0 ? 'e-row' : 'o-row')) + '">';
-        sTableHtml += '<td align=center>' + data.rank + '</td>';
-        // sTableHtml += '<td align=right><font color=' + (rankTrend > 0 ? 'green' : 'gray') + '>' + rankTrend + '</font></td>';
-        sTableHtml += '<td><font color=' + (data.country == '中国' ? '#dd1a2a' : '') + '>' + data.name + '</font></td>';
-        sTableHtml += '<td>' + data.zname + '</td>';
-        sTableHtml += '<td align="center">' + (bIsNoneRecord ? '&nbsp;' : ('<a href="#" onclick="editRow(' + data.id + ', this); return false;"><img src="images/edit.png" width="20" height="20" border=0></a>')) + '</td>';
-        // sTableHtml += '<td>' + data.title + '</td>';
-        sTableHtml += '<td>' + data.country + '</td>';
-        sTableHtml += '<td align=right>' + data.rate + '</td>';
-        if(has_trend){
-            sTableHtml += '<td align=right><font color=' + (rateTrend > 0 ? 'green' : 'gray') + '>' + rateTrend + '</font></td>';
-            sTableHtml += '<td align=right><font color=' + (rankTrend > 0 ? 'green' : 'gray') + '>' + rankTrend + '</font></td>';
-
+		var config = configHash[profileId];
+		var col = document.createElement('td');
+		col.innerText = config?.zname || '';
+		return col;
+	});
+  
+    // if these is no zname, hightlight it
+    table.querySelectorAll('tbody tr').forEach(function(row){
+        if(!row.cells[2].innerText.trim()){
+            row.className = 'o-alert';
         }
-        // sTableHtml += '<td align=right>' + (data.games >= 0 ? data.games : '-') + '</td>';
-        sTableHtml += '<td align=right>' + data.birthday + '</td>';
-        sTableHtml += '</tr>';
+    })
+
+    // update hints    
+    var chnPlayersCount = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.getAttribute('country') == 'CHN').length;
+    var countNone = Array.from(table.querySelectorAll('tbody tr')).filter(row => !row.cells[2].innerText.trim()).length;
+    var hints = `共获取到（<b>${rowsCount}</b>）条记录，展示其中 ${truncat_num} 条${chnPlayersCount > 0 ? '，其中中国选手 [ <font color="#dd1a2a""">' + chnPlayersCount + '</font> ] 名' : ''}。`;
+    hints += (countNone > 0) ? '同时有（ <font color="#dd1a2a">' + countNone + '</font> ）人未在库中或更易了英文名，需要处理:' : '';
+    Element.update('dvHints', hints);
+    
+    // assembly editor table: copy the data table and remove rows with zname, then change the edit column
+    var dvEditableContent = $('dvEditableContent')
+    Element.update(dvEditableContent, dvContent.innerHTML);
+    Array.from(dvEditableContent.querySelectorAll('tbody tr')).forEach(function(row, index){
+        if(row.cells[2].innerText.trim()){
+            row.parentNode.removeChild(row);
+        }else{
+            updateZnameEditor(row);
+        }
+        
+    });
+    
+    // insert edit column
+    insertColumn(table, 3, '编辑', function(row, sibling){
+		var profileId = row.getAttribute('_id');
+		var col = document.createElement('td');
+        if(sibling.previousSibling.innerText.trim()){
+            col.innerHTML = `
+                <a href="#" onclick="editRow(${profileId}, this); return false;">
+                    <img src="images/edit.png" width="20" height="20" border=0>
+                </a> 
+            `;
+        }		
+		return col;
+	});
+
+    Element.show('dvContent');
+    Element.show('dvEditableContent');
+}
+
+function editRow(id, lnk) {
+    var rawRow = lnk.parentNode.parentNode;
+    rawRow.className = 'o-alert';
+    lnk.style.display = 'none';
+
+    var data = Object.extend({ id: id }, MyFile.getConfigEntity[id]);
+
+    var tbl = $('dvEditableContent').querySelector('table tbody');
+    var newRow = tbl.insertRow();
+    newRow.innerHTML = rawRow.innerHTML;
+    newRow.deleteCell(3); // delete the editor column
+    updateZnameEditor(newRow, rawRow.cells[2].innerText); // update with zname
+}
+function updateZnameEditor(row, zname){
+    row.cells[2].innerHTML = `<input type="text" name="" value="${zname ? zname : row.cells[1].innerText}" onfocus="this.select()">`;
+}
+
+function updateConfig() {
+    var tbl = $('dvEditableContent').querySelector('table');
+    var configEntity = MyFile.getConfigEntity();
+    if (!configEntity) {
+        return;
     }
-    sTableHtml += '</table>';
-
-    var tips = `共获取到（<b>${dataRows.length}</b>）条${MyConfig.getModeHash()[mode]  ? MyConfig.getModeHash()[mode] : ''}等级分记录，展示其中 ${truncat_num} 条，其中中国选手[<font color="#dd1a2a""">${chnPlayersCount}</font>]名。`;
-
-    tips += (countNone > 0) ? ', 同时有（<font color="#dd1a2a">' + countNone + '</font>）人未在库中或更易了英文名，需要处理:' : '';
-    sNoneRecHtml = '<table id="tblConfig2Update" style="background: #737E88" border="0" cellspacing="1" cellpadding="3"><tr style="text-align: center; background: #4c67ac; color: #ffffff"><td><b>排名</b></td><td><b>编号</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>国家</b></td><td><b>等级分</b></td><td><b>出生年份</b></td></tr>' + sNoneRecHtml;
-    sNoneRecHtml += '</table>';
-    tips += sNoneRecHtml;
-    tips += '<br><button onclick="updateConfig()">更新数据</button>';
-    tips += '<span style="margin-left: 5px"><button onclick="copyContent()">拷贝数据</button>&nbsp;<br><br>';
-
-    sTableHtml = tips + sTableHtml;
-
-    Element.update('dvContent', sTableHtml);
-
-    //alert(Object.toJSON(window.analyzeData))
-    $('btnAnalyze').disabled = false;
+    var updateEntities = [];
+    if (tbl) {
+        for (i = 1; i < tbl.rows.length; i++) {
+            var row = tbl.rows[i];
+            var id = row.getAttribute('_id');
+            var zname = row.cells[2].firstChild.value;
+            if (!containsChinese(zname)) continue;
+            updateEntities.push(Object.extend(configEntity[id] || {}, collectConfigEntity(row)));
+        }
+    }
+    if (updateEntities.length == 0) {
+        alert('没有要更新的选手或者填写不正确（必须是中文名）！请检查填写项。');
+        return;
+    }
+    toggleLoadingTips(true);
+    MyFile.writeConfigEntity(updateEntities, function () {
+        alert('配置更新完毕');
+        toggleLoadingTips(false);
+        loadCurrentRate();
+    });
+}
+function collectConfigEntity(row){
+    var cols = row.cells;
+    return {
+        id: row.getAttribute('_id'),
+        rank: cols[0].innerText,
+        name: cols[1].innerText,
+        zname: cols[2].firstChild.value,
+        title: row.getAttribute('_title'),
+        country: row.getAttribute('country'),
+        rate: cols[5].innerText,
+        birthday: cols[6].innerText
+    }
 }
 function copyContent(){
-    var tbl = $('tblContent');
+    var tbl = $('dvContent').querySelector('table');
     var txt = $('txtContent');
-    txt.textContent = tbl.innerText;
+    var rowTextArr = [];
+    Array.from(tbl.rows).forEach(function(row){
+        var textArr = Array.from(row.cells).filter(function(it,index){return index != 3 & index !=4}).map(it=> it.innerText.trim());
+        rowTextArr.push(textArr.join('	'));
+    })
+    txt.textContent = rowTextArr.join('\n');
     txt.select();
     if(document.execCommand('copy')){
         alert('已拷贝表格内容到剪贴板');
@@ -383,304 +1510,10 @@ function copyContent(){
     txt.blur();
     
 }
-function updateConfig() {
-    var tbl = $('tblConfig2Update');
-    var configEntity = window.currentConfigEntity;
-    var mode = window.currentConfigMode;
-    var truncat_num = window.currentTruncatNum;
-    if (!configEntity || !mode) {
-        return;
-    }
-    var updateEntities = [];
-    if (tbl) {
-        for (i = 1; i < tbl.rows.length; i++) {
-            var row = tbl.rows[i];
-            var id = row.cells[1].innerHTML;
-            var zname = row.cells[3].firstChild.value;
-            if (!containsChinese(zname)) continue;
-            updateEntities.push(Object.extend(configEntity[id], {
-                'id': id,
-                'zname': zname
-            }));
-        }
-    }
-    if (updateEntities.length == 0) {
-        alert('没有要更新的选手或者填写不正确（必须是中文名）！请检查填写项。');
-        return;
-    }
-    MyFile.writeConfigEntity(updateEntities, new function () {
-        alert('配置更新完毕');
-        loadCurrentRate(mode, truncat_num);
-    });
-
-}
 function containsChinese(str) {
     const REGEX_CHINESE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]/;
     return str.match(REGEX_CHINESE);
 }
-function getConfigHash(bIsLady) {
-    var result = {};
 
-    return result;
-}
-function editRow(id, lnk) {
-    var row = lnk.parentNode.parentNode;
-    row.className = 'o-alert';
-    lnk.style.display = 'none';
-    var data = Object.extend({ id: id }, window.currentConfigEntity[id]);
 
-    var tbl = $('tblConfig2Update');
-    if (tbl) {
-        var newRow = tbl.insertRow();
-        newRow.className = 'o-alert';
-        var tds = makeNoneRecRowHtml(data, true);
-        for (var index = 0; index < tds.length; index++) {
-            newRow.insertCell().innerHTML = tds[index];
-        }
-    }
-}
-function makeNoneRecRowHtml(data, bReturnTdList) {
-    var result = [];
-    result[0] = data.rank;
-    result[1] = data.id;
-    result[2] = data.name;
-    result[3] = '<input type="text" name="" value="' + data.zname + '" onfocus="this.select()">';
-    // result[4] = (data.title || '').toUpperCase();//MyConfig.getTitleHash()[data.title] || data.title;
-    result[4] = MyConfig.getCountryHash()[data.country] || data.country;
-    result[5] = data.rate;
-    result[6] = data.birthday;
-    if (!bReturnTdList) {
-        result = '<tr class="o-alert"><td>' + result.join('</td><td>') + '</td></tr>';
-    }
-    return result
-}
-function hasNoChnChar(str) {
-    if (str != null && str.match(/^[\x00-\xff]/)) {
-        return true;
-    }
-    //else
-    return false;
-}
-function toJSONStr(json) {
-    var result = [];
-    for (var name in json) {
-        result.push(name + ':' + '\'' + json[name] + '\'');
-    }
-    return '{' + result.join(',') + '}'
-}
-window.analyzeData = {
-    country: {}, birthday: {}, rate: {}, title: {}
-};
-var categorys = ['country', 'title', 'rate', 'birthday'];
-function findCategoryIndex(name) {
-    for (var i = 0; i < categorys.length; i++) {
-        if (categorys[i] == name) {
-            return i;
-        }
-    }
-    //else
-    return -1;
-}
-var CHART_DV_PREFFIX = 'chart_container_';
-window.showTips = true;
-function analyseData() {
-    var sContent = '';
-    for (var i = 0; i < categorys.length; i++) {
-        var category = categorys[i];
-        var chartDataArr = retrieveChartData(category);
-
-        var ratePieDvId = 'pieChart_' + category;
-        var rateBarDvId = 'barChart_' + category;
-        var tipsHtml = chartDataArr[2];
-        //<tr><td>piechart</td><td rowspan=2 valign=top>tips</td></tr>
-        //<tr><td>barchart</td></tr>
-        var chartHtml = '<table id=' + CHART_DV_PREFFIX + category + '>';
-        chartHtml += '<tr><td id=' + ratePieDvId + '></td>'
-        if (window.showTips) chartHtml += '<td rowspan=2 valign=top>' + tipsHtml + '</td>'
-        chartHtml += '</tr>';
-        chartHtml += '<tr><td id=' + rateBarDvId + '></td></tr>';
-        chartHtml += '</table>'
-        new Insertion.Bottom('dvCharts', chartHtml);//'<span id="' + ratePieDvId + '"></span>');
-
-        var pieChart = new FusionCharts("src/Pie2D.swf", "myChartId", "520", "420", "0", "1");
-        pieChart.setXMLData(chartDataArr[0]);
-        pieChart.render(ratePieDvId);
-
-        var barChart = new FusionCharts("src/Column2D.swf", "myChartId", "520", "150", "0", "1");
-        barChart.setXMLData(chartDataArr[1]);
-        barChart.render(rateBarDvId);
-
-        //seperator
-        new Insertion.Bottom('dvCharts', '<div class="separator_bar" />');
-    }
-}
-window.allRateArr = [];
-function getAllRateValues(rates) {
-    var maxTemp = Math.max.apply(Math, rates) / 100, max = Math.round(maxTemp);
-    max = (max < maxTemp ? (max + 0.5) : max) * 100;
-    var minTemp = Math.min.apply(Math, rates) / 100, min = Math.round(minTemp);
-    min = (min > minTemp ? (min - 0.5) : min) * 100;
-    var avg = Math.avg(rates);
-    return [avg, min, max]
-}
-function pushAnalyzeData(data) {
-    for (var i = 0; i < categorys.length; i++) {
-        var category = categorys[i];
-        var entity = window.analyzeData[category];
-        var key = data[category];
-        if (category == 'rate') {
-            key = Math.floor(key / 100) * 100;
-        } else if (category == 'birthday') {
-            key = Math.floor(key / 10) * 10;
-        }
-        //alert(category);
-        entity[key] = entity[key] || { 'ids': [], 'rate': [] };
-        entity[key]['ids'].push(data.id);
-        entity[key]['rate'].push(data.rate);
-        window.allRateArr.push(data.rate);
-    }
-}
-function hideDetails() {
-    Element.hide('dvChartDetails');
-}
-function showDetails(category, sIds) {
-
-    try {
-        var sTableHtml = '<table style="background: #737E88" border="0" cellspacing="1" cellpadding="3">';
-        sTableHtml += '<tr class="e-row"><td colspan=11><a href="#" onclick="hideDetails(); return false;">&nbsp;Close</a></td></tr>';
-        sTableHtml += '<tr style="text-align: center; background: #4c67ac; color: #ffffff"><td><b>#</b></td><td><b>排名</b></td><td><b>姓名</b></td><td><b>译名</b></td><td><b>国家</b></td><td><b>等级分</b><td><b>对局数</b></td><td><b>出生年份</b></td></tr>';
-        var hConfigHash = window.currentConfigEntity;
-        var hCountryHash = MyConfig.getCountryHash();
-        var ids = sIds.split(','), ranks = [], rates = [], birthdays = [];
-        for (var i = 0; i < ids.length; i++) {
-            var data = Object.extend({}, hConfigHash[ids[i]]);
-
-            data.country = hCountryHash[data.country] || data.country;
-            //data.title = hTitleHash[data.title];
-
-            //构造html
-            sTableHtml += '<tr class="' + (i % 2 == 0 ? 'e-row' : 'o-row') + '">';
-            sTableHtml += '<td align=center>' + (i + 1) + '</td>';
-            sTableHtml += '<td align=center>' + data.rank + '</td>';
-            sTableHtml += '<td><font color=' + (data.country == '中国' ? '#dd1a2a' : '') + '>' + data.name + '</font></td>';
-            sTableHtml += '<td>' + data.zname + '</td>';
-            sTableHtml += '<td>' + data.title + '</td>';
-            sTableHtml += '<td>' + data.country + '</td>';
-            sTableHtml += '<td align=right>' + data.rate + '</td>';
-            sTableHtml += '<td align=right>' + data.games + '</td>';
-            sTableHtml += '<td align=right>' + data.birthday + '</td>';
-            sTableHtml += '</tr>';
-            ranks.push(data.rank);
-            rates.push(data.rate);
-            birthdays.push(data.birthday);
-        }
-        sTableHtml += '<tr class=e-row>';
-        sTableHtml += '<td align=center><b>AVG</b></td>';
-        sTableHtml += '<td class=focusTd align=right>' + Math.avg(ranks) + '</td>';
-        sTableHtml += '<td class=focusTd align=right colspan=5>' + Math.avg(rates) + '</td>';
-        var year = (new Date()).getFullYear();
-        sTableHtml += '<td class=focusTd align=right colspan=2>' + (year - Math.avg(birthdays)) + '</td>';
-        sTableHtml += '</tr>';
-        sTableHtml += '<tr class="e-row"><td colspan=11 align=right><a href="#" onclick="hideDetails(); return false;">Close&nbsp;</a></td></tr>';
-        sTableHtml += '</table>';
-
-        Element.update('dvChartDetails', sTableHtml);
-        var currChartDv = $(CHART_DV_PREFFIX + category);
-        var contianer = $('dvChartDetails');
-        Position.absolutize(contianer);
-        Position.clone(currChartDv, contianer);
-        contianer.style.left = 535 + (window.showTips ? 120 : 0) + 'px';
-        contianer.style.top = (parseInt(contianer.style.top, '10') + 2) + 'px';
-
-        Element.show('dvChartDetails');
-
-    } catch (ex) {
-        alert([ex.message, ex.stack]);
-    }
-}
-function retrieveChartData(category) {
-    var str = "<chart caption='" + category + "'>";
-    var entitys = quickSort(window.analyzeData[category]);
-    var count = 0, othersEntityIds = [], othersEntityAvgs = [], avgArr = [], categoryCounterArr = [];
-    for (var name in entitys) {
-        count++;
-        var entity = entitys[name];
-        var ids = entity['ids'];
-        var avg = entity['avg'];
-        if (count > 10) {
-            othersEntityIds.push(ids);
-            othersEntityAvgs.push(avg);
-            continue;
-        }
-        avgArr.push(avg + '_' + name);
-        categoryCounterArr.push(ids);
-        str += "<set label='" + name + "' value='" + ids.length + "' link=\"j-showDetails('" + category + "', '" + ids.join(',') + "')\" />";
-    }
-    if (othersEntityIds.length > 0) {
-        var sOthersName = 'Others';
-        str += "<set label='" + sOthersName + "' value='" + othersEntityIds.length + "' link=\"j-showDetails('" + category + "', '" + othersEntityIds.join(',') + "')\" />";
-        avgArr.push(Math.avg(othersEntityAvgs) + '_' + sOthersName);
-        categoryCounterArr.push(othersEntityIds);
-    }
-    str += "</chart>";
-
-    //TODO calc max/min
-    var avgAllValue = getAllRateValues(window.allRateArr)[0];
-    var allAvgValues = [];
-    var strAvg = '', strAvgTbl = '<table class=tipslist>';
-    for (var i = 0; i < avgArr.length; i++) {
-        var avgStr = avgArr[i];
-        var parts = avgStr.split('_');
-        var key = parts[1] ? parts[1] : 'NA', value = parts[0];
-        strAvg += "<set label='" + key + "' value='" + value + "'/>";
-        allAvgValues.push(value);
-
-        var ids = categoryCounterArr[i], showFunc = "showDetails('" + category + "', '" + ids.join(',') + "')";
-        strAvgTbl += '<tr><td><a href="javascript:' + showFunc + '">' + key + '</a></td><td>' + value + '</td><td>' + ids.length + '</td></tr>';
-    }
-    var limits = getAllRateValues(allAvgValues);
-    var strAvg = "<chart borderColor='737E88' borderThickness='3' bgColor='#ffffff' useRoundEdges='1' formatNumberScale='0' formatNumber='0' yAxisMinValue='" + limits[1] + "' yAxisMaxValue='" + limits[2] + "'>" + strAvg;
-    strAvg += "<trendLines>" +
-        "<line startValue='" + avgAllValue + "' color='ff0000' displayvalue='' /> " +
-        "</trendLines>" + "</chart>";
-
-    strAvgTbl += '<tr><td>AVG</td><td colspan=2>' + avgAllValue + '</td></tr>';
-    strAvgTbl += '</table>';
-    return [str, strAvg, strAvgTbl];
-}
-function quickSort(map) {
-    var arr = [];
-    var hashMap = {};
-    for (var name in map) {
-        var entity = map[name];
-        var ids = entity['ids'];
-        var avg = Math.avg(entity['rate'], false);
-        var count = ids.length;
-        var key = (count >= 10 ? count : '0' + count) + '_' + avg + '_' + name;
-        arr.push(key);
-        hashMap[key] = { 'ids': ids, 'avg': Math.round(avg) };
-    }
-    arr = arr.sort().reverse();
-    var result = {};
-    for (var i = 0; i < arr.length; i++) {
-        var str = arr[i];
-        var parts = str.split('_');
-        result[parts[2]] = hashMap[str];
-    }
-    return result;
-}
-Object.extend(Math, {
-    avg: function (arr, bRound) {
-        var num = 0, len = arr.length;
-        for (var i = 0; i < len; i++) {
-            num += parseFloat(arr[i]);
-        }
-        var result = parseFloat(num / len);
-        return bRound === false ? result : Math.round(result);
-    }
-});
-
-function getCountryOpt(){
-    return MyConfig.getCountryHash()
-}
 loadConfig();

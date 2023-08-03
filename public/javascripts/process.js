@@ -177,6 +177,18 @@ var MyConfig = {
 			f: '棋联大师'
 		};
 	},
+	getTitleHash2 : function(){
+		return {
+			gm: '特大',
+			im: '国际大',
+			fm: '棋联大',
+			cm: '候选大',
+			wgm: '女特大',
+			wim: '女国际大',
+			wfm: '女棋联大',
+			wcm: '女候选大'
+		};
+	},
 	getModeHash : function(){
 		return {
 			men: '男棋手',

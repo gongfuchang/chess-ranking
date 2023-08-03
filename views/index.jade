@@ -5,7 +5,7 @@ block content
   script(src='/javascripts/prototype.js')
   script(src='/javascripts/process.js')  
 
-  #dvMain      
+  #dvMain
     #dvCustomOptions(style={display: 'block'})
       form(id="customSearch" onclick='return false;')
         select(name="country")
@@ -42,39 +42,40 @@ block content
         button(onclick='doCustomSearch()') 查找
         button(onclick='saveFilter()') 保存过滤器
 
-    #dvOptionsBar
-      button(onclick='analyseData()' id='btnAnalyze' style={display: 'none'}) 分析数据
-      span 快捷式查找：     
-      a(onclick="doCustomSearch({topn: 100}, this)" href="#") 前100
-      a(onclick="doCustomSearch({gender: 'F', topn: 100}, this)" href="#") 女100
-      span
-      a(onclick="doCustomSearch({country: 'CHN', topn: 50}, this)" href="#") 中国50
-      a(onclick="doCustomSearch({country: 'CHN', gender: 'F', topn: 50}, this)" href="#") 中国女50
-      span
-      a(onclick="doCustomSearch({maxAge: '20', topn: 20}, this)" href="#") 青年20
-      a(onclick="doCustomSearch({maxAge: '20', gender: 'F', topn: 20}, this)" href="#") 青年女20
-      span
-      a(onclick="doCustomSearch({country: 'CHN', maxAge: '20', topn: 50}, this)" href="#") 中国青年50
-      - age = (new Date()).getFullYear() - 2000
-      a(onclick="doCustomSearch({country: 'CHN', maxAge: '#{age}', topn: 50}, this)" href="#") 中国00后50
-      span 
+    #dvFilters
+      #dvReservedFilters
+        button(onclick='analyseData()' id='btnAnalyze' style={display: 'none'}) 分析数据
+        span 快捷式查找：     
+        a(onclick="doCustomSearch({topn: 100}, this)" href="#") 前100
+        a(onclick="doCustomSearch({gender: 'F', topn: 100}, this)" href="#") 女100
+        span
+        a(onclick="doCustomSearch({country: 'CHN', topn: 50}, this)" href="#") 中国50
+        a(onclick="doCustomSearch({country: 'CHN', gender: 'F', topn: 50}, this)" href="#") 中国女50
+        span
+        a(onclick="doCustomSearch({maxAge: '20', topn: 20}, this)" href="#") 青年20
+        a(onclick="doCustomSearch({maxAge: '20', gender: 'F', topn: 20}, this)" href="#") 青年女20
+        span
+        a(onclick="doCustomSearch({country: 'CHN', maxAge: '20', topn: 50}, this)" href="#") 中国青年50
+        - age = (new Date()).getFullYear() - 2000
+        a(onclick="doCustomSearch({country: 'CHN', maxAge: '#{age}', topn: 50}, this)" href="#") 中国00后50
+        span 
 
-    #dvCustomFilterBar(style={display: 'none'})
+      #dvCustomFilters(style={display: 'none'})
       
 
     #dvLoadingTips(style={display: 'none'})
       font loading...
 
-    #dvHiddenContent(style={display: 'none'})
+    
+    #dvHints
+    #dvEditableContent(style={display: 'none'})
+    #divOperationBar 
+      button(onclick="updateConfig()") 更新数据
+      button(onclick="copyContent()") 拷贝数据
 
-    table 
-      tbody 
-        tr 
-          td
-            #dvCharts(style={width: '550px'})
+    
 
-    #dvChartDetails(style={display: 'none'})
-    #dvContent
+    #dvContent(style={display: 'none'})
 
     script(src='/javascripts/render.js')
 
