@@ -152,7 +152,7 @@ function loadCurrentRate(options) {
            
     sUrl += encodeURIComponent(remotePart);  
 
-    if(true) sUrl = 'test.html'
+    // if(true) sUrl = 'test.html'
     // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
 
 
