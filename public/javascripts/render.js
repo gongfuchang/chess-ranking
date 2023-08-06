@@ -152,7 +152,7 @@ function loadCurrentRate(options) {
            
     sUrl += encodeURIComponent(remotePart);  
 
-    // if(true) sUrl = 'test.html'
+    if(true) sUrl = 'test.html'
     // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
 
 
@@ -203,7 +203,6 @@ function updateContentDisplay(table){
 		// titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
         titleCol.setAttribute('title', TITLE_HASH[titleStr] || titleCol.innerText);
         titleCol.innerText = titleCol.innerText.toUpperCase();
-        row.setAttribute('_title', titleStr);
 
         // fed name and country flag
 		var fedCol = cols[3];
@@ -212,7 +211,7 @@ function updateContentDisplay(table){
 		fedFlag.setAttribute('height', '16');
         var fedStr = fedCol.innerText.trim();
 		fedCol.childNodes[2].textContent = FED_HASH[fedStr] || fedCol.innerText
-        row.setAttribute('country', fedStr);
+        row.setAttribute('_country', fedStr);
 
         // for chinese fed, hightlight them
         var opt = window.currentSearchOptions;
@@ -286,7 +285,7 @@ function renderTable(sContent, truncat_num) {
     })
 
     // update hints    
-    var chnPlayersCount = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.getAttribute('country') == 'CHN').length;
+    var chnPlayersCount = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.getAttribute('_country') == 'CHN').length;
     var countNone = Array.from(table.querySelectorAll('tbody tr')).filter(row => !row.cells[2].innerText.trim()).length;
     var hints = `共获取到（<b>${rowsCount}</b>）条记录，展示其中 ${truncat_num} 条${chnPlayersCount > 0 ? '，其中中国选手 [ <font color="#dd1a2a""">' + chnPlayersCount + '</font> ] 名' : ''}。`;
     hints += (countNone > 0) ? '同时有（ <font color="#dd1a2a">' + countNone + '</font> ）人未在库中或更易了英文名，需要处理:' : '';
@@ -327,12 +326,12 @@ function editRow(id, lnk) {
     rawRow.className = 'o-alert';
     lnk.style.display = 'none';
 
-    var data = Object.extend({ id: id }, Midware.getConfigEntity[id]);
-
     var tbl = $('dvEditableContent').querySelector('table tbody');
     var newRow = tbl.insertRow();
     newRow.innerHTML = rawRow.innerHTML;
     newRow.deleteCell(3); // delete the editor column
+    newRow.setAttribute('_id', id);
+    newRow.className = rawRow.className;
     updateZnameEditor(newRow, rawRow.cells[2].innerText); // update with zname
 }
 function updateZnameEditor(row, zname){
@@ -364,7 +363,6 @@ function updateConfig() {
         alert('配置更新完毕');        
         Midware.loadConfigEntity(function () {
             loadCurrentRate();
-            toggleLoadingTips(false);
         });
     });
 }
@@ -372,13 +370,7 @@ function collectConfigEntity(row){
     var cols = row.cells;
     return {
         id: row.getAttribute('_id'),
-        rank: cols[0].innerText,
-        name: cols[1].innerText,
         zname: cols[2].firstChild.value,
-        title: row.getAttribute('_title'),
-        country: row.getAttribute('country'),
-        rate: cols[5].innerText,
-        birthday: cols[6].innerText
     }
 }
 function copyContent(){
