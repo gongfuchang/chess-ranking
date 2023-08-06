@@ -1,17 +1,5 @@
-var MyFile = {
-	FOR_READING: 1,
-	FOR_WRITEING: 2,
-	LASTUPDATE_FLAG: 'lastUpdateTime',
-	PLAYERS_FLAG: 'players',
-	MEN: 'men',
-	WOMEN: 'women',
+var Midware = {
 	CONFIG_ENTITY: {},
-	getConfigFileName : function(){
-		return this.__getFolder() + 'config.csv';
-	},
-	getDetailsFileName : function(flag){
-		return this.__getFolder() + 'details-' + flag + '.csv';
-	},
 	loadConfigEntity : function(callback){
 		var sUrl = '/config/list';
 		var self = this;
@@ -33,11 +21,11 @@ var MyFile = {
 		});
 	},
 	__makeConfigEntity: function(content){		
-		// {'lastUpdateTime': 168, 'players': {'1503014': {'zname': '卡尔森'}}}
+		// {'1503014': {'zname': '卡尔森'}}
 		this.CONFIG_ENTITY = JSON.parse(content) || {};
 	},
 	getConfigEntity : function(){
-		return (this.CONFIG_ENTITY || {})[this.PLAYERS_FLAG];
+		return (this.CONFIG_ENTITY || {});
 
 	},
 	writeConfigEntity : function(entities, callback){
@@ -56,145 +44,21 @@ var MyFile = {
 			}
 		});
 	},
-	readDetailsEntity : function(flag){
-		return {};
-		var file = this.fso.OpenTextFile(this.getDetailsFileName(flag), MyFile.FOR_READING, false);
-		//read first line
-		var result = {header: {id: 'id-flag', timestamps: []}, records: {}};
-		if (!file.AtEndOfStream){
-			var str = file.ReadLine();
-			var parts = str.split('	');
-			parts.shift();
-			//alert(parts)
-			result['header'].timestamps = parts;
-		}
-		//read all records
-		while (!file.AtEndOfStream){
-			var str = file.ReadLine();
-			if (str.length == 0){
-				continue;
-			}
-			//else
-			//patern: 1503014	2814-1-17	2804-2-12	..
-			var parts = str.split('	');
-			result['records'][parts.shift()] = parts;
-		}
-		file.Close();
 
-		return result;
-	},
-	writeDetailsEntity : function(entity, flag){
-		//entity pattern: {header: {id: 'id-flag', timestamps: [1293985356828, ..]}, records: {'1503014': ['2814-1-17', ..]}};
-		//先比较最新时间，同一月份的不进行更新
-		var header = entity['header'];
-		if (this.__renderInTheSameMonth(parseInt(header.timestamps[0], 10))){
-			return;
-		}
-		//else
-		var str2Write = 'id';
-		for(var index = 0; index < header.timestamps.length; index++){
-			str2Write += '\t' + header.timestamps[index];
-		}
-		str2Write += '\n';
-
-		var recs = entity['records'];
-		for(var id in recs){
-			str2Write += id;
-			var historys = recs[id];
-			for(var index = 0; index < historys.length; index++){
-				str2Write += '\t' + historys[index];
-			}
-			str2Write += '\n';
-		}
-		//alert(str2Write);
-		//back up first
-		var sDetailsFile = this.getDetailsFileName(flag);
-		// this.backup(sDetailsFile);
-
-		//write file
-		var file = this.getFile(sDetailsFile);
-		//alert(sDetailsFile);
-		var ts = file.OpenAsTextStream(MyFile.FOR_WRITEING, 0);//0-TristateUseDefault
-		//document.getElementById('txtConfig').value = str2Write;
-		ts.Write(str2Write);
-		ts.Close();
-		
-	},
-
-	getFile : function(sFileName, bCreateIfNone){
-		var file = null;
-		if (!this.fso.FileExists(sFileName)){
-			if(!(bCreateIfNone === true)){
-				return null;
-			}
-			file = this.fso.CreateTextFile(sFileName);
-		}else{
-			file = this.fso.GetFile(sFileName);
-		}
-		return file;
-	},
-	writeXmlFile : function(sFileName, sContent){
-		//write file
-		sFileName = sFileName + '.xml'
-		var sFileNamePath = this.__getFolder() + sFileName;
-		var file = this.getFile(sFileNamePath, true);
-		var ts = file.OpenAsTextStream(MyFile.FOR_WRITEING, 0);//0-TristateUseDefault
-		ts.Write(sContent);
-		ts.Close();
-
-		return 'res/' + sFileName;
-	},
-	_fileFolder: null,
-	__getFolder : function(){
-		if (this._fileFolder == null){
-			var locHref = location.href;
-			//pattern: file:///{path}/test-file.html
-			var dirTxt = locHref.substring(8, locHref.lastIndexOf('/') + 1);
-			this._fileFolder = dirTxt + 'res/';
-		}
-		return this._fileFolder;
-	},
-	__renderInTheSameMonth : function(nTimeMills){
-		var lastUpdateDt = new Date(nTimeMills);
-		var now = new Date();
-		if (now.getMonth() <= lastUpdateDt.getMonth()){
-			return true;
-		}
-		//else
-		return false;
-	}
 }
 
 
-var MyConfig = {
-	getTitleHash : function(){
-		return {
-			g: '特级大师',
-			m: '国际大师',
-			wg: '女子特级大师',
-			wf: '女子棋联大师',
-			wm: '女子国际大师',
-			f: '棋联大师'
-		};
-	},
+var PlayerConfig = {
 	getTitleHash2 : function(){
 		return {
-			gm: '特大',
-			im: '国际大',
-			fm: '棋联大',
-			cm: '候选大',
-			wgm: '女特大',
-			wim: '女国际大',
-			wfm: '女棋联大',
-			wcm: '女候选大'
-		};
-	},
-	getModeHash : function(){
-		return {
-			men: '男棋手',
-			women: '女棋手',
-			juniors: '青少年棋手',
-			girls: '青年女棋手'
+			gm: '特级大师',
+			im: '国际大师',
+			fm: '棋联大师',
+			cm: '候选大师',
+			wgm: '女子特级大师',
+			wim: '女子国际大师',
+			wfm: '女子棋联大师',
+			wcm: '女子候选大师'
 		};
 	},
 	getCountryHash : function(){

@@ -53,27 +53,7 @@ var processResponse = function(res, req, result) {
   result.on("data", function(chunk) {
       data += chunk;
   });
-  var tags = [];
-  var tagsCount = {};
-  var tagsWithCount = [];
   result.on("end", function(chunk) {
-      var parser = new htmlparser.Parser({
-          onopentag: function(name, attribs) {
-              if(tags.indexOf(name) === -1) {
-                  tags.push(name);
-                  tagsCount[name] = 1;
-              } else {
-                  tagsCount[name]++;
-              }
-          },
-          onend: function() {
-              for(var i = 0; i < tags.length; i++) {
-                  tagsWithCount.push({name: tags[i], count: tagsCount[tags[i]]});
-              }
-          }
-      }, {decodeEntities: true});
-      parser.write(data);
-      parser.end();
       res.send(data);
   });
 }

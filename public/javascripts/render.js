@@ -8,7 +8,7 @@ Object.extend(String.prototype, {
 
 function loadConfig() {
     toggleLoadingTips(true);
-    MyFile.loadConfigEntity(function () {
+    Midware.loadConfigEntity(function () {
         toggleLoadingTips(false);
     });
 
@@ -152,17 +152,22 @@ function loadCurrentRate(options) {
            
     sUrl += encodeURIComponent(remotePart);  
 
+    if(true) sUrl = 'test.html'
+    // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
+
+
     toggleLoadingTips(true);
     var req = new Ajax.Request(sUrl, {
         method: 'GET',
         onSuccess: function (trans) {
             //alert(trans.responseText)
             var content = trans.responseText;
+            window.currentSearchOptions = opt;
+            renderTable(content, opt.topn);
             
             try {
                 // console.log(content);
-                window.currentSearchOptions = opt;
-                renderTable(content, opt.topn);
+              
 
             } catch (err) {
                 console.error(err);
@@ -175,8 +180,8 @@ function loadCurrentRate(options) {
         }
     });
 }
-const TITLE_HASH = MyConfig.getTitleHash2();
-const FED_HASH = MyConfig.getCountryHash();
+const TITLE_HASH = PlayerConfig.getTitleHash2();
+const FED_HASH = PlayerConfig.getCountryHash();
 const FIDE_SITE = 'https://ratings.fide.com/'; 
 function updateHeaderDisplay(table){
 	headerHash = {Name: '姓名', Title: '称号', Fed: '棋协', Rating: '等级分', 'B-Year': '出生年份'}
@@ -195,7 +200,9 @@ function updateContentDisplay(table){
         // title 
 		var titleCol = cols[2];
         var titleStr = titleCol.innerText.toLowerCase();
-		titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
+		// titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
+        titleCol.setAttribute('title', TITLE_HASH[titleStr] || titleCol.innerText);
+        titleCol.innerText = titleCol.innerText.toUpperCase();
         row.setAttribute('_title', titleStr);
 
         // fed name and country flag
@@ -260,7 +267,7 @@ function renderTable(sContent, truncat_num) {
     }    
 
 	// insert zname column
-	const configHash = MyFile.getConfigEntity();
+	const configHash = Midware.getConfigEntity();
 	insertColumn(table, 2, '中文名', function(row){
 		var profileId = extractProfileId(row);
         row.setAttribute('_id', profileId);
@@ -320,7 +327,7 @@ function editRow(id, lnk) {
     rawRow.className = 'o-alert';
     lnk.style.display = 'none';
 
-    var data = Object.extend({ id: id }, MyFile.getConfigEntity[id]);
+    var data = Object.extend({ id: id }, Midware.getConfigEntity[id]);
 
     var tbl = $('dvEditableContent').querySelector('table tbody');
     var newRow = tbl.insertRow();
@@ -334,7 +341,7 @@ function updateZnameEditor(row, zname){
 
 function updateConfig() {
     var tbl = $('dvEditableContent').querySelector('table');
-    var configEntity = MyFile.getConfigEntity();
+    var configEntity = Midware.getConfigEntity();
     if (!configEntity) {
         return;
     }
@@ -353,10 +360,12 @@ function updateConfig() {
         return;
     }
     toggleLoadingTips(true);
-    MyFile.writeConfigEntity(updateEntities, function () {
-        alert('配置更新完毕');
-        toggleLoadingTips(false);
-        loadCurrentRate();
+    Midware.writeConfigEntity(updateEntities, function () {
+        alert('配置更新完毕');        
+        Midware.loadConfigEntity(function () {
+            loadCurrentRate();
+            toggleLoadingTips(false);
+        });
     });
 }
 function collectConfigEntity(row){
