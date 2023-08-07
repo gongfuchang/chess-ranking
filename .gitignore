@@ -1,3 +1,5 @@
 /.github/
 /node_modules
 public/res/
+package-lock.json
+yarn.lock

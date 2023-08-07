@@ -152,7 +152,7 @@ function loadCurrentRate(options) {
            
     sUrl += encodeURIComponent(remotePart);  
 
-    // if(true) sUrl = 'test.html'
+    if(true) sUrl = 'test.html'
     // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
 
 
@@ -226,19 +226,25 @@ function extractProfileId(row){
 	return nameLink.href.split('/').slice(-1);
 }
 function insertColumn(table, index, title, colInsertFunc){
-	index += 1;
-	var headerCol = table.querySelector(`thead th:nth-of-type(${index})`);
-	if(!headerCol) console.error(`no element in position ${index} of given table!`);
-	var znameHeaderCol = document.createElement('th');
-	znameHeaderCol.innerText = title;
-	headerCol.parentNode.insertBefore(znameHeaderCol, headerCol);
+    index = index > 0 ? (index + 1) : table.querySelectorAll('thead th').length;
+
+    if(title){
+        var headerCol = table.querySelector(`thead th:nth-of-type(${index})`);
+        if(!headerCol) console.error(`no element in position ${index} of given table!`);
+        var znameHeaderCol = document.createElement('th');
+        znameHeaderCol.innerText = title;
+        headerCol.parentNode.insertBefore(znameHeaderCol, headerCol);
+    
+    }
 
 	index -= 1;
-	table.querySelectorAll('#dvContent tbody tr').forEach(function(row){
-		var cols = row.cells;
-		var col = cols[index];
-		col.parentNode.insertBefore(colInsertFunc.call(this, col.parentNode, col), col);
-	});
+    if(colInsertFunc){
+        table.querySelectorAll('#dvContent tbody tr').forEach(function(row){
+            var cols = row.cells;
+            var col = cols[index];
+            col.parentNode.insertBefore(colInsertFunc.call(this, col.parentNode, col), col);
+        });
+    }
 	
 }
 function renderTable(sContent, truncat_num) {
@@ -284,6 +290,9 @@ function renderTable(sContent, truncat_num) {
         }
     })
 
+    
+
+
     // update hints    
     var chnPlayersCount = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.getAttribute('_country') == 'CHN').length;
     var countNone = Array.from(table.querySelectorAll('tbody tr')).filter(row => !row.cells[2].innerText.trim()).length;
@@ -291,17 +300,8 @@ function renderTable(sContent, truncat_num) {
     hints += (countNone > 0) ? '同时有（ <font color="#dd1a2a">' + countNone + '</font> ）人未在库中或更易了英文名，需要处理:' : '';
     Element.update('dvHints', hints);
     
-    // assembly editor table: copy the data table and remove rows with zname, then change the edit column
-    var dvEditableContent = $('dvEditableContent')
-    Element.update(dvEditableContent, dvContent.innerHTML);
-    Array.from(dvEditableContent.querySelectorAll('tbody tr')).forEach(function(row, index){
-        if(row.cells[2].innerText.trim()){
-            row.parentNode.removeChild(row);
-        }else{
-            updateZnameEditor(row);
-        }
-        
-    });
+    // update with sex and other info, and then assembly editor table: copy the data table and remove rows with zname, then change the edit column
+    updateExtraInfo(table, assemblyEditorTable);
     
     // insert edit column
     insertColumn(table, 3, '编辑', function(row, sibling){
@@ -320,6 +320,43 @@ function renderTable(sContent, truncat_num) {
     Element.show('dvContent');
     Element.show('dvEditableContent');
 }
+function assemblyEditorTable(){
+    var dvEditableContent = $('dvEditableContent')
+    Element.update(dvEditableContent, dvContent.innerHTML);
+    Array.from(dvEditableContent.querySelectorAll('tbody tr')).forEach(function(row, index){
+        if(row.cells[2].innerText.trim()){
+            row.parentNode.removeChild(row); // remove the rows that contains znames
+        }else{
+            updateZnameEditor(row);
+        }
+        
+    });
+}
+function updateExtraInfo(table, callback){
+    insertColumn(table, 6, '性别'); // add header first
+    var ids = Array.from(table.querySelectorAll('tbody tr')).map(it=>it.getAttribute('_id'));
+
+    var req = new Ajax.Request("/player/extra", {
+        method: 'POST',
+        contentType: 'application/json',
+        Authorization: 'Basic YWRtaW46YWRtaW4=',
+		postBody: JSON.stringify({ids: ids.join(',')}),
+        onSuccess: function (trans) {
+            var entries = JSON.parse(trans.responseText);
+            if(!entries.length) return;
+            insertColumn(table, 7, null, function(row){        
+                var col = document.createElement('td');
+                col.innerText = entries.find(it=>it?._id==row.getAttribute('_id'))?._source?.Sex || '';
+                // col.innerText = col.innerText == 'M' ? '' : col.innerText;
+                if(col.innerText == 'F') row.className = row.className ? row.className + ' pink' : 'pink';
+                return col;
+            });
+
+            callback?.call(this);
+        }
+    });
+
+}
 
 function editRow(id, lnk) {
     var rawRow = lnk.parentNode.parentNode;
@@ -329,7 +366,7 @@ function editRow(id, lnk) {
     var tbl = $('dvEditableContent').querySelector('table tbody');
     var newRow = tbl.insertRow();
     newRow.innerHTML = rawRow.innerHTML;
-    newRow.deleteCell(3); // delete the editor column
+    // newRow.deleteCell(3); // delete the zname column
     newRow.setAttribute('_id', id);
     newRow.className = rawRow.className;
     updateZnameEditor(newRow, rawRow.cells[2].innerText); // update with zname

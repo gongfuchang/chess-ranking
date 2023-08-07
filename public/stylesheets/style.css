@@ -168,7 +168,9 @@ tbody tr.highlight{
 tbody tr.o-alert{
   background: rgb(251, 243, 213)!important;
 }
-
+tbody tr.pink td:nth-child(7){
+  color: #c20adfe8!important;
+}
 td {
   display: table-cell;
   vertical-align: inherit;
