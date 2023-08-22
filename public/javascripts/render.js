@@ -321,21 +321,26 @@ function assemblyEditorTable(){
     });
 }
 async function updateExtraInfo(table){
-    insertColumn(table, 6, '性别'); // add header first
     var ids = Array.from(table.querySelectorAll('tbody tr')).map(it=>it.getAttribute('_id'));
 
     try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 2000);
+
         const resp = await fetch("/player/extra", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Basic YWRtaW46YWRtaW4='
+                'Authorization': 'Basic ZWxhc3RpYzp3czEyMzQ1Ng=='
             },
-            body: JSON.stringify({ids: ids.join(',')})
+            body: JSON.stringify({ids: ids.join(',')}),
+            signal: controller.signal
         });
+        clearTimeout(id);
         return resp.json().then(jso =>{
             var entries = jso;
             if(!entries.length) return;
+            insertColumn(table, 6, '性别'); // add header first
             insertColumn(table, 7, null, function(row){        
                 var col = document.createElement('td');
                 col.innerText = entries.find(it=>it?._id==row.getAttribute('_id'))?._source?.Sex || '';
@@ -344,9 +349,9 @@ async function updateExtraInfo(table){
                 return col;
             });
         }); 
-    } catch (error) {
+    } catch (err) {
         console.error(err);
-        alert('请求 Extra 数据发生错误，请重新请求试试。');
+        // alert('请求 Extra 数据发生错误，请重新请求试试。');
     }
 }
 

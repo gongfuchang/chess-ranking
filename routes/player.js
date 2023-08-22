@@ -61,7 +61,7 @@ router.post("/extra", function (req, res, next) {
   try {
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
-    fetch("https://localhost:9200/chess_player/_search", {
+    fetch("https://chesskb.com:9200/chess_player/_search", {
       method: "POST",
       body: JSON.stringify({
         from: 0, size: 1000,
@@ -72,8 +72,8 @@ router.post("/extra", function (req, res, next) {
         },
       }),
       headers: {
-        "Content-type": "application/json; charset=UTF-8",
-        "Authorization": "Basic YWRtaW46YWRtaW4=",
+        "Content-type": req.headers["content-type"],
+        "Authorization": req.headers.authorization,
       },
     })
       .then((response) => {
