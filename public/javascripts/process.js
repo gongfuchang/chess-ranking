@@ -1,48 +1,41 @@
 var Midware = {
-	CONFIG_ENTITY: {},
-	loadConfigEntity : function(callback){
+	CONFIG_ENTITY: {}, // {'1503014': {'zname': '卡尔森'}}
+	loadConfigEntity : async function(){
 		var sUrl = '/config/list';
-		var self = this;
-		var req = new Ajax.Request(sUrl, {
-			method: 'GET',
-			onSuccess: function(trans){
-				//alert(trans.responseText)
-				var sContent = trans.responseText;
-				try{					
-					self.__makeConfigEntity(sContent);
-				}catch(err){
-					//TODO
-					alert(err.message);
-					console.err(err);
-				}
-
-				callback.call(self);
-			}
-		});
-	},
-	__makeConfigEntity: function(content){		
-		// {'1503014': {'zname': '卡尔森'}}
-		this.CONFIG_ENTITY = JSON.parse(content) || {};
+		try {
+			const resp = await fetch('/config/list', {
+				method: 'GET'
+			});
+			return resp.json().then(jso =>{	
+				this.CONFIG_ENTITY = jso;
+			});
+		} catch (err) {
+			alert(err.message);
+			console.err(err);
+		}        	
 	},
 	getConfigEntity : function(){
 		return (this.CONFIG_ENTITY || {});
 
 	},
-	writeConfigEntity : function(entities, callback){
+	writeConfigEntity : async function(entities, callback){
 		if (!entities){
 			return;
 		}
 		//else
-		var sUrl = '/config/save';
-		var self = this;
-		var req = new Ajax.Request(sUrl, {
-			method: 'POST',
-			contentType: 'application/json',
-			postBody: JSON.stringify({'players' : entities}),
-			onSuccess: function(trans){
-				callback.apply();
-			}
-		});
+		try {
+			const resp = await fetch('/config/save', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({'players' : entities})
+			});
+			return resp.json();
+		} catch (err) {
+			console.error(err);
+			alert('保存棋手数据发生错误，请重新请求试试。');
+		}
 	},
 
 }
@@ -98,7 +91,7 @@ var PlayerConfig = {
 			'GER':	'德国',
 			'GRE':	'希腊',
 			'HUN':	'匈牙利',
-			'HK':	'中国香港',
+			'HKG':	'中国香港',
 			'IND':	'印度',
 			'INA':	'印度尼西亚',
 			'IRQ':	'伊拉克',

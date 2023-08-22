@@ -8,9 +8,7 @@ Object.extend(String.prototype, {
 
 function loadConfig() {
     toggleLoadingTips(true);
-    Midware.loadConfigEntity(function () {
-        toggleLoadingTips(false);
-    });
+    Midware.loadConfigEntity().then(data =>{toggleLoadingTips(false);});
 
     loadFilters();
 
@@ -140,7 +138,7 @@ function getCurrentDate(){
     dt = new Date();
     return dt.getFullYear() + '-' + prefixInt(dt.getMonth() + 1, 2) + '-01';
 }
-function loadCurrentRate(options) {
+async function loadCurrentRate(options) {
     var opt = options || window.currentSearchOptions;
     if(!opt){
         alert('找不到查找数据的参数！请重新点击过滤器或者查找按钮。');
@@ -152,33 +150,23 @@ function loadCurrentRate(options) {
            
     sUrl += encodeURIComponent(remotePart);  
 
-    // if(true) sUrl = 'test.html'
+    if(true) sUrl = 'test.html'
     // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
 
 
     toggleLoadingTips(true);
-    var req = new Ajax.Request(sUrl, {
-        method: 'GET',
-        onSuccess: function (trans) {
-            //alert(trans.responseText)
-            var content = trans.responseText;
+    try {
+        const resp = await fetch(sUrl, {method: 'GET'});
+        resp.text().then(content => {
             window.currentSearchOptions = opt;
             renderTable(content, opt.topn);
-            
-            try {
-                // console.log(content);
-              
-
-            } catch (err) {
-                console.error(err);
-                //TODO
-                alert('请求 Fide 数据发生错误，请重新请求试试。');
-                toggleLoadingTips(false);
-            }
-
-            toggleLoadingTips(false);
-        }
-    });
+        }) 
+    } catch (err) {
+        console.error(err);
+        alert('请求 Fide 数据发生错误，请重新请求试试。');
+        
+    }    
+    toggleLoadingTips(false);
 }
 const TITLE_HASH = PlayerConfig.getTitleHash2();
 const FED_HASH = PlayerConfig.getCountryHash();
@@ -301,7 +289,7 @@ function renderTable(sContent, truncat_num) {
     Element.update('dvHints', hints);
     
     // update with sex and other info, and then assembly editor table: copy the data table and remove rows with zname, then change the edit column
-    updateExtraInfo(table, assemblyEditorTable);
+    updateExtraInfo(table).then(data => {assemblyEditorTable()});
     
     // insert edit column
     insertColumn(table, 3, '编辑', function(row, sibling){
@@ -332,17 +320,21 @@ function assemblyEditorTable(){
         
     });
 }
-function updateExtraInfo(table, callback){
+async function updateExtraInfo(table){
     insertColumn(table, 6, '性别'); // add header first
     var ids = Array.from(table.querySelectorAll('tbody tr')).map(it=>it.getAttribute('_id'));
 
-    var req = new Ajax.Request("/player/extra", {
-        method: 'POST',
-        contentType: 'application/json',
-        Authorization: 'Basic YWRtaW46YWRtaW4=',
-		postBody: JSON.stringify({ids: ids.join(',')}),
-        onSuccess: function (trans) {
-            var entries = JSON.parse(trans.responseText);
+    try {
+        const resp = await fetch("/player/extra", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic YWRtaW46YWRtaW4='
+            },
+            body: JSON.stringify({ids: ids.join(',')})
+        });
+        return resp.json().then(jso =>{
+            var entries = jso;
             if(!entries.length) return;
             insertColumn(table, 7, null, function(row){        
                 var col = document.createElement('td');
@@ -351,11 +343,11 @@ function updateExtraInfo(table, callback){
                 if(col.innerText == 'F') row.className = row.className ? row.className + ' pink' : 'pink';
                 return col;
             });
-
-            callback?.call(this);
-        }
-    });
-
+        }); 
+    } catch (error) {
+        console.error(err);
+        alert('请求 Extra 数据发生错误，请重新请求试试。');
+    }
 }
 
 function editRow(id, lnk) {
@@ -396,11 +388,9 @@ function updateConfig() {
         return;
     }
     toggleLoadingTips(true);
-    Midware.writeConfigEntity(updateEntities, function () {
+    Midware.writeConfigEntity(updateEntities).then(jso =>{
         alert('配置更新完毕');        
-        Midware.loadConfigEntity(function () {
-            loadCurrentRate();
-        });
+        Midware.loadConfigEntity().then(data => {loadCurrentRate()});
     });
 }
 function collectConfigEntity(row){
