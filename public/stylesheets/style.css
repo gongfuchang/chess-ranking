@@ -69,22 +69,21 @@ body section{
   background: #f6f6f6;
   padding: 12px 20px;
 }
-#dvReservedFilters, #dvCustomFilters{
+#dvReservedFilters, #dvCustomFilters, #dvAdvancedFilters{
   padding: 3px 0px;
 }
 
-#dvReservedFilters a{
-  margin-right: 5px;
+#dvReservedFilters a, #dvAdvancedFilters a{
   width: 100px;
   cursor: pointer;
   color: #085dc4;
   text-decoration: none;
   font-size: 13px;
 }
-#dvCustomFilters span.delButton{
+#dvCustomFilters span.spButton, #dvAdvancedFilters span.spButton{
   margin-right: 10px;
 }
-#dvCustomFilters span.delButton a{
+#dvCustomFilters span.spButton a, #dvAdvancedFilters span.spButton a{
   color: #dd1a2a;
   border-bottom: 0px;
   text-decoration: none;

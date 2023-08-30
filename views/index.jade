@@ -2,6 +2,7 @@ extends layout
 block header 
 
 block content
+  script(src='/javascripts/filter.js')
   script(src='/javascripts/prototype.js')
   script(src='/javascripts/process.js')  
 
@@ -9,7 +10,7 @@ block content
     #dvCustomOptions(style={display: 'block'})
       form(id="customSearch" onclick='return false;')
         select(name="country")
-          - countriesMap = {"ALB":"阿尔巴尼亚","ALG":"阿尔及利亚","ANG":"安哥拉","ARG":"阿根廷","AUS":"澳大利亚","AUT":"奥地利","BAR":"巴布达岛","BLR":"白俄罗斯","BOL":"玻利维亚","BRA":"巴西","BUL":"保加利亚","BEL":"比利时","CHN":"中国","CAN":"加拿大","CZE":"捷克","CUB":"古巴","CHI":"智利","CYP":"塞浦路斯","CAM":"柬埔寨","COL":"哥伦比亚","CRO":"克罗地亚","DEN":"丹麦","DOM":"多米尼加共和国","EGY":"埃及","ECU":"厄瓜多尔","ESP":"西班牙","EST":"爱沙尼亚","ETH":"埃塞俄比亚","FIN":"芬兰","FRA":"法国","GBR":"英国","GEO":"格鲁吉亚","GER":"德国","GRE":"希腊","HUN":"匈牙利","HK":"中国香港","IND":"印度","INA":"印度尼西亚","IRQ":"伊拉克","IRI":"伊朗","IRL":"爱尔兰","ISL":"冰岛","ISR":"以色列","ITA":"意大利","JOR":"约旦","JPN":"日本","KAZ":"哈萨克斯坦","KOR":"韩国","KGZ":"吉尔吉斯斯坦","KSA":"沙特阿拉伯","KUW":"科威特","LIB":"黎巴嫩","LBA":"比利时","LTU":"立陶宛","LUX":"卢森堡","MGL":"蒙古","MEX":"墨西哥","MAR":"摩洛哥","MON":"摩纳哥","MYA":"缅甸","NAM":"纳米比亚","NOR":"挪威","NZL":"新西兰","NED":"荷兰","NEP":"尼泊尔","NGR":"尼日利亚","PAK":"巴基斯坦","PAN":"巴拿马","PER":"秘鲁","PHI":"菲律宾","POL":"波兰","PUR":"波多黎哥","POR":"葡萄牙","PRK":"朝鲜","ROM":"罗马尼亚","RSA":"南非","RUS":"俄罗斯","SIN":"新加坡","SVK":"斯洛伐克","SLO":"斯洛文尼亚","SUD":"苏丹","SRI":"斯里兰卡","SWE":"瑞典","SUI":"瑞士","SCO":"苏格兰","SYR":"叙利亚","TUN":"突尼斯","THA":"泰国","TPE":"中华台北","TUR":"土耳其","UKR":"乌克兰","USA":"美国","VEN":"委内瑞拉","VIE":"越南","YEM":"也门","YUG":"南斯拉夫","ZIM":"赞比亚","MTN":"黑山共和国","MNE":"黑山共和国","SRB":"塞尔维亚","ROU":"罗马尼亚","ENG":"英国","ARM":"亚美尼亚","QAT":"卡塔尔","LAT":"拉脱维亚","AZE":"阿塞拜疆","UZB":"乌兹别克斯坦","MDA":"摩尔多瓦","BIH":"波黑","FID":"棋联","UAE":"阿联酋"}
+          - countriesMap = {"ALB":"阿尔巴尼亚","ALG":"阿尔及利亚","ANG":"安哥拉","ARG":"阿根廷","AUS":"澳大利亚","AUT":"奥地利","BAR":"巴布达岛","BLR":"白俄罗斯","BOL":"玻利维亚","BRA":"巴西","BUL":"保加利亚","BEL":"比利时","CHN":"中国","CAN":"加拿大","CZE":"捷克","CUB":"古巴","CHI":"智利","CYP":"塞浦路斯","CAM":"柬埔寨","COL":"哥伦比亚","CRO":"克罗地亚","DEN":"丹麦","DOM":"多米尼加共和国","EGY":"埃及","ECU":"厄瓜多尔","ESP":"西班牙","EST":"爱沙尼亚","ETH":"埃塞俄比亚","FIN":"芬兰","FRA":"法国","GBR":"英国","GEO":"格鲁吉亚","GER":"德国","GRE":"希腊","HUN":"匈牙利","HKG":"中国香港","IND":"印度","INA":"印度尼西亚","IRQ":"伊拉克","IRI":"伊朗","IRL":"爱尔兰","ISL":"冰岛","ISR":"以色列","ITA":"意大利","JOR":"约旦","JPN":"日本","KAZ":"哈萨克斯坦","KOR":"韩国","KGZ":"吉尔吉斯斯坦","KSA":"沙特阿拉伯","KUW":"科威特","LIB":"黎巴嫩","LBA":"比利时","LTU":"立陶宛","LUX":"卢森堡","MGL":"蒙古","MEX":"墨西哥","MAR":"摩洛哥","MON":"摩纳哥","MYA":"缅甸","NAM":"纳米比亚","NOR":"挪威","NZL":"新西兰","NED":"荷兰","NEP":"尼泊尔","NGR":"尼日利亚","PAK":"巴基斯坦","PAN":"巴拿马","PER":"秘鲁","PHI":"菲律宾","POL":"波兰","PUR":"波多黎哥","POR":"葡萄牙","PRK":"朝鲜","ROM":"罗马尼亚","RSA":"南非","RUS":"俄罗斯","SIN":"新加坡","SVK":"斯洛伐克","SLO":"斯洛文尼亚","SUD":"苏丹","SRI":"斯里兰卡","SWE":"瑞典","SUI":"瑞士","SCO":"苏格兰","SYR":"叙利亚","TUN":"突尼斯","THA":"泰国","TPE":"中华台北","TUR":"土耳其","UKR":"乌克兰","USA":"美国","VEN":"委内瑞拉","VIE":"越南","YEM":"也门","YUG":"南斯拉夫","ZIM":"赞比亚","MTN":"黑山共和国","MNE":"黑山共和国","SRB":"塞尔维亚","ROU":"罗马尼亚","ENG":"英国","ARM":"亚美尼亚","QAT":"卡塔尔","LAT":"拉脱维亚","AZE":"阿塞拜疆","UZB":"乌兹别克斯坦","MDA":"摩尔多瓦","BIH":"波黑","FID":"棋联","UAE":"阿联酋"}
           - selected = ['CHN', 'RUS', 'IND', 'USA']
           - leftCountries = Object.entries(countriesMap).filter(it=>!selected.includes(it[0]))
           - countries = selected.map(it => [it, countriesMap[it]]).concat(leftCountries)
@@ -40,43 +41,44 @@ block content
           - each index in topRanges
             option(value="#{index}") Top-#{index}            
         button(onclick='doCustomSearch()') 查找
-        button(onclick='saveFilter()') 保存过滤器
+        button(onclick='Filter.saveFilter()') 保存过滤器
 
     #dvFilters
       #dvReservedFilters
-        button(onclick='analyseData()' id='btnAnalyze' style={display: 'none'}) 分析数据
-        span 快捷式查找：     
-        a(onclick="doCustomSearch({topn: 100}, this)" href="#") 前100
-        a(onclick="doCustomSearch({gender: 'F', topn: 100}, this)" href="#") 女100
-        span
-        a(onclick="doCustomSearch({country: 'CHN', topn: 50}, this)" href="#") 中国50
-        a(onclick="doCustomSearch({country: 'CHN', gender: 'F', topn: 50}, this)" href="#") 中国女50
-        span
-        a(onclick="doCustomSearch({maxAge: '20', topn: 20}, this)" href="#") 青年20
-        a(onclick="doCustomSearch({maxAge: '20', gender: 'F', topn: 20}, this)" href="#") 青年女20
-        span
-        a(onclick="doCustomSearch({country: 'CHN', maxAge: '20', topn: 50}, this)" href="#") 中国青年50
-        - age = (new Date()).getFullYear() - 2000
-        a(onclick="doCustomSearch({country: 'CHN', maxAge: '#{age}', topn: 50}, this)" href="#") 中国00后50
+        span 快捷式查找：
+        - filters = [[{topn: 100}, '前100'], [{gender: "F", topn: 100}, '女100'], [{gender: "F", topn: 100}, '女100'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{maxAge: '20', topn: 20}, '青年20'], [{maxAge: '20', gender: 'F', topn: 20}, '青年女20'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: '#{age}', topn: 50}, '中国00后50']]
+        - each filter in filters 
+          a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
         span 
 
-      #dvCustomFilters(style={display: 'none'})
+  
+      #dvAdvancedFilters()
+        span 可视化分析：
+        - adFilters = [['9da740b0-3dab-11ee-a983-81bcb8b5f115', '基本分析'],['f584dcf0-464f-11ee-ac7f-4b3aeca4f796', '棋协年代人数'], ['ddf72470-4655-11ee-ac7f-4b3aeca4f796', '棋协对比']]
+        - each filter in adFilters    
+          a(onclick="doAdvancedSearch('#{filter[0]}', this)" href="#") #{filter[1]}
+          span(class='spButton')
+            a(onclick="openAdvancedSearch('#{filter[0]}', this)" href='#' title='新窗口打开' class='btn') &#x26F6;
       
+      #dvCustomFilters(style={display: 'none'})    
 
     #dvLoadingTips(style={display: 'none'})
       font loading...
 
-    
-    #dvHints
-    #dvEditableContent(style={display: 'none'})
-    #divOperationBar 
-      button(onclick="updateConfig()") 更新数据
-      button(onclick="copyContent()") 拷贝数据
+    #dvAdvancedSearch(style={display: 'none'})
+      iframe(id="frmAdvanced", src="about:blank", frameborder="0", height="800", width="100%") 
+      
 
-    
+    #dvSearchResult(style={display: 'none'})
+      #dvHints
+      #dvEditableContent(style={display: 'none'})
+      #divOperationBar 
+        button(onclick="updateConfig()") 更新数据
+        button(onclick="copyContent()") 拷贝数据    
 
-    #dvContent(style={display: 'none'})
+      #dvContent(style={display: 'none'})
+      textarea(id="txtContent")
 
     script(src='/javascripts/render.js')
 
-    textarea(id="txtContent")       
+           

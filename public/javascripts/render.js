@@ -1,142 +1,27 @@
-const FILTER_STORAGE_NAME = "com.dan.chess.rank.filters";
-
-Object.extend(String.prototype, {
-    trim: function () {
-        return this.replace(/(^\s*)|(\s*$)/g, "");
-    }
-});
-
-function loadConfig() {
-    toggleLoadingTips(true);
-    Midware.loadConfigEntity().then(data =>{toggleLoadingTips(false);});
-
-    loadFilters();
-
-    document.body.style['background-image'] = `url('/images/bg-${Math.ceil(Math.random() * 5)}.jpg')`;
-}
-function toggleLoadingTips(show) {
-    show ? Element.show('dvLoadingTips') : Element.hide('dvLoadingTips');
-    document.querySelectorAll('#dvMain button').forEach(function(elm){
-        elm.disabled = show;
-    })
-    document.querySelectorAll('#dvMain a').forEach(function(elm){
-        elm.style['pointer-events'] = show ? 'none' : 'all';
-    })
-
-}
-function prefixInt(num, length) {
-    return (num / Math.pow(10, length)).toFixed(length).substring(2);
-}
-function doDeleteFilter(id){
-    var savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}');
-    if(savedFilters[id] && confirm(`确定要删除【${id}】？`)){
-        delete savedFilters[id];
-        localStorage.setItem(FILTER_STORAGE_NAME, JSON.stringify(savedFilters));
-        loadFilters();
-    }
-}
-function loadFilters(){
-    var filters = Object.entries(JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}')); 
-    var container = $('dvCustomFilters');
-    var htmlContent = filters.length > 0 ? '<span>自定义查找：</span>' : '';
-    filters.forEach(function(ft){
-        htmlContent += `
-            <span>
-                <a onclick="doCustomSearchByFilter('${ft[0]}', this)" href='#'>${ft[0]}</a>
-            </span>
-            <span class='delButton'>(<a onclick="doDeleteFilter('${ft[0]}')" href='#' title='点击删除' class='btn'>X</a>)</span>
-        `;
-    });
-    if(htmlContent){
-        container.innerHTML = htmlContent;
-        Element.show(container);
-    }
-    
-}
-function saveFilter(){
-    var opt = collectSearchOpt();
-    var desc = Object.entries(opt).filter(it=>it[1]).map( it => `${it[0]} = ${it[1]}`).join(', ');
-    var name = prompt(`请在保存如下查询参数时起个名字：${desc}`, getFilterName(opt)); // TODO auto name
-    var savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}');
-    if(name){
-        // save to storage
-        savedFilters[name] = opt;
-        localStorage.setItem(FILTER_STORAGE_NAME, JSON.stringify(savedFilters));
-        loadFilters();
-    }
-}
-function getFilterName(opt){
-    var form = document.querySelector('#customSearch');
-    var items = Object.entries(opt).filter(it=>it[1]); // 规律掉“表头”
-    var result = [];
-    items.forEach(function(item){
-        var key = item[0], value = item[1]; // 'country', 'RUS'
-        var selectElm = form[key];
-        var found = Array.from(selectElm.options).map(it=>[it.value, it.text]).find(it => it[0] == value); // ['RUS', '俄罗斯']
-        result.push(found[1]);
-    });
-    return result.join('-');
-}
-function doCustomSearchByFilter(id, sourceElm){
-    var savedFilters = JSON.parse(localStorage.getItem(FILTER_STORAGE_NAME) || '{}');
-    var filter = savedFilters[id];
-    if(filter){
-        doCustomSearch(filter, sourceElm);
-    }
-}
-function collectSearchOpt(){
-    var form = document.querySelector('#customSearch');
-    opt = {
-        'country': form.country.value,
-        'gender': form.gender.value,
-        'rating': form.rating.value,
-        'topn': form.topn.value
-    }
-    if(parseInt(form.minAge.value) > parseInt(form.maxAge.value)){
-        form.ageMin.value = '';
-        form.ageMax.value = '';
-    }else{
-        opt['minAge'] = form.minAge.value
-        opt['maxAge'] = form.maxAge.value
-    }
-    return opt;
-}
-
-function updateSearchOptStatus(opt){
-    // opt: {'country': 'RUS', 'ageMin': 20 ...}
-    var form = document.querySelector('#customSearch');
-    Array.from(form.querySelectorAll('select')).forEach(function(elm){
-        var key = elm.name; // 'country' -> 'RUS'
-        elm.value = opt[key] || (key == 'rating' ? 'standard' : '');
-        // set style of event source link element
-        var source = event.target || event.srcElement;
-    });
-}
-function updateFilterLinkStatus(sourceElm){
-    if(!sourceElm) return;
-    // console.log(sourceElm)
-    var currLinkText = sourceElm.text;
-    var links = Array.from(document.querySelectorAll('#dvMain a:not(.btn)'))
-    links.filter(it=>it.text.trim() == currLinkText)[0].setAttribute('class', 'hightlight');
-    links.filter(it=>it.text.trim() != currLinkText).map(it=>it.setAttribute('class', ''));
-}
 function doCustomSearch(opt, sourceElm){
+    Element.hide('dvAdvancedSearch');
+    Element.show('dvSearchResult');
     if(opt){
         loadCurrentRate(opt);
-        updateSearchOptStatus(opt);
-        updateFilterLinkStatus(sourceElm);
+        Filter.updateSearchOptStatus(opt);
+        Filter.updateFilterLinkStatus(sourceElm);
         return;
     }
-    var opt = collectSearchOpt();
-    loadCurrentRate(opt);     
+    var opt = Filter.collectSearchOpt();
+    loadCurrentRate(opt);         
 }
-function showCustomSearch(){
-    Element.show('dvCustomOptions')
+const DASHBOARD_URL = 'http://chesskb.kittygpt.cn/app/dashboards#/view';
+const DASHBOARD_DEFAULT_PARAMS = '_g=(refreshInterval%3A(pause%3A!t%2Cvalue%3A60000)%2Ctime%3A(from%3Anow-150y%2Cto%3Anow))&show-time-filter=true'
+function doAdvancedSearch(dashboard, sourceElm){
+    Element.hide('dvSearchResult');
+    Element.show('dvAdvancedSearch');    
+    var src = `${DASHBOARD_URL}/${dashboard}?embed=true&${DASHBOARD_DEFAULT_PARAMS}`;
+    $('frmAdvanced').src = src;
+    Filter.updateFilterLinkStatus(sourceElm);
 }
-
-function getCurrentDate(){
-    dt = new Date();
-    return dt.getFullYear() + '-' + prefixInt(dt.getMonth() + 1, 2) + '-01';
+function openAdvancedSearch(dashboard){
+    var src = `${DASHBOARD_URL}/${dashboard}?${DASHBOARD_DEFAULT_PARAMS}`;
+    window.open(src, '_blank');
 }
 async function loadCurrentRate(options) {
     var opt = options || window.currentSearchOptions;
@@ -278,9 +163,6 @@ function renderTable(sContent, truncat_num) {
         }
     })
 
-    
-
-
     // update hints    
     var chnPlayersCount = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.getAttribute('_country') == 'CHN').length;
     var countNone = Array.from(table.querySelectorAll('tbody tr')).filter(row => !row.cells[2].innerText.trim()).length;
@@ -398,6 +280,7 @@ function updateConfig() {
         Midware.loadConfigEntity().then(data => {loadCurrentRate()});
     });
 }
+
 function collectConfigEntity(row){
     var cols = row.cells;
     return {
@@ -405,6 +288,27 @@ function collectConfigEntity(row){
         zname: cols[2].firstChild.value,
     }
 }
+
+
+function loadConfig() {
+    toggleLoadingTips(true);
+    Midware.loadConfigEntity().then(data =>{toggleLoadingTips(false);});
+
+    Filter.loadFilters();
+
+    document.body.style['background-image'] = `url('/images/bg-${Math.ceil(Math.random() * 5)}.jpg')`;
+}
+function toggleLoadingTips(show) {
+    show ? Element.show('dvLoadingTips') : Element.hide('dvLoadingTips');
+    document.querySelectorAll('#dvMain button').forEach(function(elm){
+        elm.disabled = show;
+    })
+    document.querySelectorAll('#dvMain a').forEach(function(elm){
+        elm.style['pointer-events'] = show ? 'none' : 'all';
+    })
+
+}
+
 function copyContent(){
     var tbl = $('dvContent').querySelector('table');
     var txt = $('txtContent');
