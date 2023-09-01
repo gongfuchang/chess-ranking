@@ -46,7 +46,8 @@ block content
     #dvFilters
       #dvReservedFilters
         span 快捷式查找：
-        - filters = [[{topn: 100}, '前100'], [{gender: "F", topn: 100}, '女100'], [{gender: "F", topn: 100}, '女100'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{maxAge: '20', topn: 20}, '青年20'], [{maxAge: '20', gender: 'F', topn: 20}, '青年女20'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: '#{age}', topn: 50}, '中国00后50']]
+        - age = (new Date()).getFullYear() - 2000        
+        - filters = [[{topn: 100}, '前100'], [{gender: "F", topn: 100}, '女100'], [{gender: "F", topn: 100}, '女100'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{maxAge: '20', topn: 20}, '青年20'], [{maxAge: '20', gender: 'F', topn: 20}, '青年女20'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: age, topn: 50}, '中国00后50']]
         - each filter in filters 
           a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
         span 
