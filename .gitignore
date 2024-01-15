@@ -1,4 +1,5 @@
 /.github/
+/.idea/
 /node_modules
 public/res/
 package-lock.json
