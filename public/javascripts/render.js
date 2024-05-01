@@ -10,6 +10,13 @@ function doCustomSearch(opt, sourceElm){
     var opt = Filter.collectSearchOpt();
     loadCurrentRate(opt);         
 }
+function doTopSearch(opt, sourceElm){
+    Element.hide('dvAdvancedSearch');
+    Element.show('dvSearchResult');
+    loadCurrentTopRate(opt);
+    Filter.updateSearchOptStatus(opt);
+    Filter.updateFilterLinkStatus(sourceElm);        
+}
 const DASHBOARD_URL = 'http://chesskb.kittygpt.cn/app/dashboards#/view';
 const DASHBOARD_DEFAULT_PARAMS = '_g=(refreshInterval%3A(pause%3A!t%2Cvalue%3A60000)%2Ctime%3A(from%3Anow-150y%2Cto%3Anow))&show-time-filter=true'
 function doAdvancedSearch(dashboard, sourceElm){
@@ -23,6 +30,10 @@ function openAdvancedSearch(dashboard){
     var src = `${DASHBOARD_URL}/${dashboard}?${DASHBOARD_DEFAULT_PARAMS}`;
     window.open(src, '_blank');
 }
+function age2Bday(age){
+    if (!age) return null;
+    return (new Date()).getFullYear() - age;
+}
 async function loadCurrentRate(options) {
     var opt = options || window.currentSearchOptions;
     if(!opt){
@@ -31,7 +42,43 @@ async function loadCurrentRate(options) {
     }
 
     var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart, has_trend = true, complex = true;
-    remotePart = `a_top_var.php?continent=0&country=${opt.country||''}&rating=${opt.rating||'standard'}&gender=${opt.gender||''}&age1=${opt.minAge||''}&age2=${opt.maxAge||''}&period=1&period2=1`;
+    remotePart = `incl_search_l.php?search_country=${opt.country||''}&search_rating=${opt.rating||'standard'}&`
+        + `search_gender=${opt.gender||''}&age1=${opt.minAge||''}&age2=${opt.maxAge||''}&period=1&period2=1`;
+    
+    remotePart = 'incl_search_l.php?search_inactive=on&search_radio=rating&search_asc=descending';
+    remotePart += '&search_country=' + (opt.country || 'all')
+        + '&search_gender=' + (opt.gender || 'all') 
+        + '&search_rating=std' + (opt.rating || 'std')
+        + `&search_bday_start=${age2Bday(opt.minAge) || 'all'}&search_bday_end=${age2Bday(opt.maxAge) || 'all'}`;
+           
+    sUrl += encodeURIComponent(remotePart);  
+
+    // if(true) sUrl = 'test.html'
+    // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
+
+
+    toggleLoadingTips(true);
+    try {
+        const resp = await fetch(sUrl, {method: 'GET'});
+        resp.text().then(content => {
+            window.currentSearchOptions = opt;
+            renderTable(content, opt.topn);
+        }) 
+    } catch (err) {
+        console.error(err);
+        alert('请求 Fide 数据发生错误，请重新请求试试。');
+        
+    }    
+    toggleLoadingTips(false);
+}
+async function loadCurrentTopRate(options) {
+    var opt = options || window.currentSearchOptions;
+    if(!opt){
+        alert('找不到查找数据的参数！请重新点击过滤器或者查找按钮。');
+        return;
+    }    
+    var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart;
+    remotePart = 'a_top.php?list=' + opt.topfilter    
            
     sUrl += encodeURIComponent(remotePart);  
 
@@ -57,28 +104,35 @@ const TITLE_HASH = PlayerConfig.getTitleHash2();
 const FED_HASH = PlayerConfig.getCountryHash();
 const FIDE_SITE = 'https://ratings.fide.com/'; 
 function updateHeaderDisplay(table){
-	headerHash = {Name: '姓名', Title: '称号', Fed: '棋协', Rating: '等级分', 'B-Year': '出生年份'}
+	headerHash = {'#' : '#', Name: '姓名', Title: '称号', Fed: '棋协', Rating: '等级分', '+-': '换名', 'B-Year': '出生年份', 'Avg12M': '12月平均'}
 	table.querySelectorAll('thead th').forEach(function(it){
-		it.innerText= headerHash[it.innerText] || it.innerText;}
-	)	
+        if (headerHash[it.innerText]) 
+		    it.innerText= headerHash[it.innerText] || it.innerText;
+        // else remove the column
+        else it.parentNode.removeChild(it);
+    })	
 }
 function updateContentDisplay(table){
+    var isTopFilter = table.id != 'table_results';
 	rows = table.querySelectorAll('tbody tr').forEach(function(row){
-		// change profile link
+        // change profile link
 		var cols = row.cells;
 		var nameLink = cols[1].querySelector('a');
 		nameLink.href = FIDE_SITE + nameLink.href.split('/').slice(-2).join('/');
 		nameLink.setAttribute('target', 'blank');
 		
         // title 
-		var titleCol = cols[2];
-        var titleStr = titleCol.innerText.toLowerCase();
-		// titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
-        titleCol.setAttribute('title', TITLE_HASH[titleStr] || titleCol.innerText);
-        titleCol.innerText = titleCol.innerText.toUpperCase();
+        if (!isTopFilter){
+            var titleCol = cols[2];
+            var titleStr = titleCol.innerText.toLowerCase();
+            // titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
+            titleCol.setAttribute('title', TITLE_HASH[titleStr] || titleCol.innerText);
+            titleCol.innerText = titleCol.innerText.toUpperCase();
+        }
+
 
         // fed name and country flag
-		var fedCol = cols[3];
+		var fedCol = isTopFilter ? cols[2] : cols[3];
 		var fedFlag = fedCol.querySelector('img');
 		fedFlag.src = FIDE_SITE + fedFlag.src.split('/').slice(-2).join('/');
 		fedFlag.setAttribute('height', '16');
@@ -125,7 +179,8 @@ function renderTable(sContent, truncat_num) {
     Element.update(dvContent, sContent);
 
     // remove redundent elements
-    dvContent.removeChild(dvContent.querySelector('div.title-page-sm'));
+    // dvContent.removeChild(dvContent.querySelector('div.title-page-sm'));
+    dvContent.removeChild(dvContent.querySelector('div.title-page'));
 
 	table = document.querySelector('#dvContent table'); 
 
@@ -166,7 +221,7 @@ function renderTable(sContent, truncat_num) {
     // update hints    
     var chnPlayersCount = Array.from(table.querySelectorAll('tbody tr')).filter(row => row.getAttribute('_country') == 'CHN').length;
     var countNone = Array.from(table.querySelectorAll('tbody tr')).filter(row => !row.cells[2].innerText.trim()).length;
-    var hints = `共获取到（<b>${rowsCount}</b>）条记录，展示其中 ${truncat_num} 条${chnPlayersCount > 0 ? '，其中中国选手 [ <font color="#dd1a2a""">' + chnPlayersCount + '</font> ] 名' : ''}。`;
+    var hints = `共获取到（<b>${rowsCount}</b>）条记录，展示其中 ${truncat_num || rowsCount} 条${chnPlayersCount > 0 ? '，其中中国选手 [ <font color="#dd1a2a""">' + chnPlayersCount + '</font> ] 名' : ''}。`;
     hints += (countNone > 0) ? '同时有（ <font color="#dd1a2a">' + countNone + '</font> ）人未在库中或更易了英文名，需要处理:' : '';
     Element.update('dvHints', hints);
     
@@ -276,8 +331,8 @@ function updateConfig() {
     }
     toggleLoadingTips(true);
     Midware.writeConfigEntity(updateEntities).then(jso =>{
-        alert('配置更新完毕');        
-        Midware.loadConfigEntity().then(data => {loadCurrentRate()});
+        alert('配置更新完毕');
+        Midware.loadConfigEntity().then(data => {window.currentSearchOptions.topfilter ? loadCurrentTopRate() : loadCurrentRate()});
     });
 }
 
@@ -313,8 +368,9 @@ function copyContent(){
     var tbl = $('dvContent').querySelector('table');
     var txt = $('txtContent');
     var rowTextArr = [];
+    var excludedCols = [3, 4, 6, 8];
     Array.from(tbl.rows).forEach(function(row){
-        var textArr = Array.from(row.cells).filter(function(it,index){return index != 3 & index !=4}).map(it=> it.innerText.trim());
+        var textArr = Array.from(row.cells).filter(function(it,index){return !excludedCols.include(index)}).map(it=> it.innerText.trim());
         rowTextArr.push(textArr.join('	'));
     })
     txt.textContent = rowTextArr.join('\n');

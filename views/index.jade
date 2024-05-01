@@ -23,7 +23,7 @@ block content
           - each val, index in genders
             option(value="#{val[0]}") #{val[1]}
         select(name="rating") 
-          - ratings = [['standard', '慢棋'], ['rapid', '快棋'], ['blitz', '超快棋']]
+          - ratings = [['std', '慢棋'], ['rpd', '快棋'], ['blz', '超快棋']]
           - each val, index in ratings
             option(value="#{val[0]}") #{val[1]} 
         select(name="minAge") 
@@ -46,10 +46,15 @@ block content
     #dvFilters
       #dvReservedFilters
         span 快捷式查找：
-        - age = (new Date()).getFullYear() - 2000        
-        - filters = [[{topn: 100}, '前100'], [{gender: "F", topn: 100}, '女100'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{maxAge: '20', topn: 20}, '青年20'], [{maxAge: '20', gender: 'F', topn: 20}, '青年女20'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: age, topn: 50}, '中国00后50']]
+        - age = (new Date()).getFullYear() - 2000
+        - filters = [[{topfilter: 'men'}, '前100'], [{topfilter: 'woman'}, '女100'], [{topfilter: 'juniors', topn: 20}, '青年20']]       
+        //- - filters = [[{topn: 100}, '前100'], [{gender: "F", topn: 100}, '女100'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{maxAge: '20', topn: 20}, '青年20'], [{maxAge: '20', gender: 'F', topn: 20}, '青年女20'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: age, topn: 50}, '中国00后50']]
         - each filter in filters 
-          a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
+          //- a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
+          if filter[0].topfilter
+            a(onclick="doTopSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
+          else
+            a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
         span 
 
   
