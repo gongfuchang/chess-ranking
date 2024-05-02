@@ -25,9 +25,12 @@ router.get("/current", function (req, res, next) {
     console.time('fetch-from-fide');
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     fetch('http://' + urlParam, {
-        "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
-    }, TIME_OUT).then(async (response) => {
+        "headers": {
+          "x-requested-with": "XMLHttpRequest"
+        },
+        "body": null,
+        "method": "GET"
+      }, TIME_OUT).then(async (response) => {
         console.timeEnd('fetch-from-fide');
         // console.time('process-text');
         if (response.ok) {

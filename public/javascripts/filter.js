@@ -65,7 +65,8 @@ var Filter = {
             'country': form.country.value,
             'gender': form.gender.value,
             'rating': form.rating.value,
-            'topn': form.topn.value
+            'topn': form.topn.value,
+            'rateLow': form.rateLow.value,
         }
         if(parseInt(form.minAge.value) > parseInt(form.maxAge.value)){
             form.ageMin.value = '';

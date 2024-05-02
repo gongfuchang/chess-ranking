@@ -14,12 +14,12 @@ block content
           - selected = ['CHN', 'RUS', 'IND', 'USA']
           - leftCountries = Object.entries(countriesMap).filter(it=>!selected.includes(it[0]))
           - countries = selected.map(it => [it, countriesMap[it]]).concat(leftCountries)
-            option(value="") --所有国家--
+            option(value="") --国家--
           - each val, index in countries
             option(value="#{val[0]}") #{val[1]}
         select(name="gender") 
           - genders = [['F', '女'], ['M', '男']]
-            option(value="") --所有性别--
+            option(value="") --性别--
           - each val, index in genders
             option(value="#{val[0]}") #{val[1]}
         select(name="rating") 
@@ -28,33 +28,37 @@ block content
             option(value="#{val[0]}") #{val[1]} 
         select(name="minAge") 
           - ages = [...Array(100).keys()]
-            option(value="") --年龄下限--
+            option(value="") --年龄下--
           - each index in ages
             option(value="#{index}") #{index}          
         select(name="maxAge") 
           - ages = [...Array(100).keys()]
-            option(value="") --年龄上限--
+            option(value="") --年龄上--
           - each index in ages
             option(value="#{index}") #{index}
         select(name="topn") 
           - topRanges = [100, 50, 10, 20, 30]
           - each index in topRanges
-            option(value="#{index}") Top-#{index}            
+            option(value="#{index}") Top-#{index}
+        select(name="rateLow") 
+          - ages = [1000, 1500, 1800, 2000, 2200, 2300, 2400, 2500, 2600, 2700, 2800]
+            option(value="") --等级分下--
+          - each val, index in ages
+            option(value="#{val}") #{val}                      
         button(onclick='doCustomSearch()') 查找
-        button(onclick='Filter.saveFilter()') 保存过滤器
+        button(onclick='Filter.saveFilter()') 保存
 
     #dvFilters
       #dvReservedFilters
         span 快捷式查找：
         - age = (new Date()).getFullYear() - 2000
-        - filters = [[{topfilter: 'men'}, '前100'], [{topfilter: 'women'}, '女100'], [{topfilter: 'juniors', topn: 20}, '青年20'], [{topfilter: 'girls', topn: 20}, '青年女20']]       
-        //- - filters = [[{topn: 100}, '前100'], [{gender: "F", topn: 100}, '女100'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{maxAge: '20', topn: 20}, '青年20'], [{maxAge: '20', gender: 'F', topn: 20}, '青年女20'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: age, topn: 50}, '中国00后50']]
+        - filters = [[{topfilter: 'men'}, '前100'], [{topfilter: 'women'}, '女100'], [{topfilter: 'juniors', topn: 20}, '青年20'], [{topfilter: 'girls', topn: 20}, '青年女20'], [{country: 'CHN', topn: 50}, '中国50'], [{country: 'CHN', gender: 'F', topn: 50}, '中国女50'], [{country: 'CHN', maxAge: '20', topn: 50}, '中国青年50'], [{country: 'CHN', maxAge: age, topn: 50}, '中国00后50']]
         - each filter in filters 
-          //- a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
-          if filter[0].topfilter
-            a(onclick="doTopSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
-          else
-            a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
+          a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
+          //- if filter[0].topfilter
+          //-   a(onclick="doTopSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
+          //- else
+          //-   a(onclick="doCustomSearch(#{JSON.stringify(filter[0])}, this)" href="#") #{filter[1]}
         span 
 
   

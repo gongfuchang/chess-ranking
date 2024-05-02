@@ -19,13 +19,7 @@ function doTopSearch(opt, sourceElm){
 }
 const DASHBOARD_URL = 'http://chesskb.kittygpt.cn/app/dashboards#/view';
 const DASHBOARD_DEFAULT_PARAMS = '_g=(refreshInterval%3A(pause%3A!t%2Cvalue%3A60000)%2Ctime%3A(from%3Anow-150y%2Cto%3Anow))&show-time-filter=true'
-function doAdvancedSearch(dashboard, sourceElm){
-    Element.hide('dvSearchResult');
-    Element.show('dvAdvancedSearch');    
-    var src = `${DASHBOARD_URL}/${dashboard}?embed=true&${DASHBOARD_DEFAULT_PARAMS}`;
-    $('frmAdvanced').src = src;
-    Filter.updateFilterLinkStatus(sourceElm);
-}
+
 function openAdvancedSearch(dashboard){
     var src = `${DASHBOARD_URL}/${dashboard}?${DASHBOARD_DEFAULT_PARAMS}`;
     window.open(src, '_blank');
@@ -41,44 +35,19 @@ async function loadCurrentRate(options) {
         return;
     }
 
-    var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart, has_trend = true, complex = true;
-    remotePart = `incl_search_l.php?search_country=${opt.country||''}&search_rating=${opt.rating||'standard'}&`
-        + `search_gender=${opt.gender||''}&age1=${opt.minAge||''}&age2=${opt.maxAge||''}&period=1&period2=1`;
-    
-    remotePart = 'incl_search_l.php?search_inactive=on&search_radio=rating&search_asc=descending';
-    remotePart += '&search_country=' + (opt.country || 'all')
-        + '&search_gender=' + (opt.gender || 'all') 
-        + '&search_rating=std' + (opt.rating || 'std')
-        + `&search_bday_start=${age2Bday(opt.minAge) || 'all'}&search_bday_end=${age2Bday(opt.maxAge) || 'all'}`;
-           
-    sUrl += encodeURIComponent(remotePart);  
-
-    // if(true) sUrl = 'test.html'
-    // if(true) sUrl = 'https://ratings.fide.com/' + remotePart
-
-
-    toggleLoadingTips(true);
-    try {
-        const resp = await fetch(sUrl, {method: 'GET'});
-        resp.text().then(content => {
-            window.currentSearchOptions = opt;
-            renderTable(content, opt.topn);
-        }) 
-    } catch (err) {
-        console.error(err);
-        alert('请求 Fide 数据发生错误，请重新请求试试。');
-        
-    }    
-    toggleLoadingTips(false);
-}
-async function loadCurrentTopRate(options) {
-    var opt = options || window.currentSearchOptions;
-    if(!opt){
-        alert('找不到查找数据的参数！请重新点击过滤器或者查找按钮。');
-        return;
-    }    
     var sUrl = '/player/current?url=' + encodeURIComponent('https://ratings.fide.com/'), remotePart;
-    remotePart = 'a_top.php?list=' + opt.topfilter    
+
+    if(opt.topfilter){
+        remotePart = 'a_top.php?list=' + opt.topfilter 
+    }else{
+        remotePart = 'incl_search_l.php?search_inactive=on';
+        remotePart += '&search_country=' + (opt.country || 'all')
+            + `&&search_low=${opt.rateLow || 'all'}&search_high=3500`
+            + '&search_gender=' + (opt.gender || 'all') 
+            + '&search_rating=' + (opt.rating || 'std')
+            + `&search_bday_start=${age2Bday(opt.maxAge) || 'all'}&search_bday_end=${age2Bday(opt.minAge) || 'all'}`
+            + '&search_radio=rating&search_asc=descending';
+    }
            
     sUrl += encodeURIComponent(remotePart);  
 
@@ -88,7 +57,9 @@ async function loadCurrentTopRate(options) {
 
     toggleLoadingTips(true);
     try {
-        const resp = await fetch(sUrl, {method: 'GET'});
+        const resp = await fetch(sUrl, {
+            method: 'GET'
+        });
         resp.text().then(content => {
             window.currentSearchOptions = opt;
             renderTable(content, opt.topn);
@@ -104,26 +75,38 @@ const TITLE_HASH = PlayerConfig.getTitleHash2();
 const FED_HASH = PlayerConfig.getCountryHash();
 const FIDE_SITE = 'https://ratings.fide.com/'; 
 function updateHeaderDisplay(table){
-	headerHash = {'#' : '#', Name: '姓名', Title: '称号', Fed: '棋协', Rating: '等级分', '+-': '换名', 'B-Year': '出生年份', 'Avg12M': '12月平均'}
-	table.querySelectorAll('thead th').forEach(function(it){
-        if (headerHash[it.innerText]) 
-		    it.innerText= headerHash[it.innerText] || it.innerText;
-        // else remove the column
-        else it.parentNode.removeChild(it);
+	headerHash = {'#' : '#', Name: '姓名', Title: '称号', Fed: '棋协', Rating: '等级分', '+-': '换名', 'B-Year': '出生年份', 'Avg12M': '12月平均'};
+    var searchRating = window.currentSearchOptions.rating || 'std';
+    // convert from 'std' to 'Std.'
+    var ratingKey = searchRating.charAt(0).toUpperCase() + searchRating.slice(1) + '.';
+    headerHash[ratingKey] = '等级分';
+
+    var indexedHeaderDict = {};
+	table.querySelectorAll('thead th').forEach(function(it, index){
+        if (headerHash[it.innerText]){
+            indexedHeaderDict[it.innerText] = index;
+            it.innerText= headerHash[it.innerText] || it.innerText;
+        }else{
+            it.parentNode.removeChild(it);
+        }
     })	
+    return indexedHeaderDict;
 }
-function updateContentDisplay(table){
-    var isTopFilter = table.id != 'table_results';
+function updateContentDisplay(table, indexedHeaderDict){
 	rows = table.querySelectorAll('tbody tr').forEach(function(row){
         // change profile link
 		var cols = row.cells;
-		var nameLink = cols[1].querySelector('a');
+
+        // find name column
+        var nameColIndex = indexedHeaderDict['Name'];
+		var nameLink = cols[nameColIndex].querySelector('a');
 		nameLink.href = FIDE_SITE + nameLink.href.split('/').slice(-2).join('/');
 		nameLink.setAttribute('target', 'blank');
 		
         // title 
-        if (!isTopFilter){
-            var titleCol = cols[2];
+        var titleColIndex = indexedHeaderDict['Title'];
+        if (titleColIndex){
+            var titleCol = cols[titleColIndex];
             var titleStr = titleCol.innerText.toLowerCase();
             // titleCol.innerText = TITLE_HASH[titleStr] || titleCol.innerText;
             titleCol.setAttribute('title', TITLE_HASH[titleStr] || titleCol.innerText);
@@ -132,7 +115,8 @@ function updateContentDisplay(table){
 
 
         // fed name and country flag
-		var fedCol = isTopFilter ? cols[2] : cols[3];
+        var fedColIndex = indexedHeaderDict['Fed'];
+		var fedCol = cols[fedColIndex];
 		var fedFlag = fedCol.querySelector('img');
 		fedFlag.src = FIDE_SITE + fedFlag.src.split('/').slice(-2).join('/');
 		fedFlag.setAttribute('height', '16');
@@ -144,16 +128,26 @@ function updateContentDisplay(table){
         var opt = window.currentSearchOptions;
         if(opt?.country != 'CHN' && fedStr == 'CHN') row.className = 'highlight';
 	})	
+    // remove column(s) that not in the indexedHeaderDict
+    var indexList = Object.values(indexedHeaderDict);
+    table.querySelectorAll('tbody tr').forEach(function(row){
+        Array.from(row.cells).forEach(function(cell, index){
+            if(!indexList.include(index)){
+                cell.parentNode.removeChild(cell);
+            }
+        });
+    })
+
+
 }
 
 function extractProfileId(row){
 	if(!row) return null;
-	var cols = row.cells;
-	var nameLink = cols[1].querySelector('a');
+	var nameLink = row.querySelector('a');
 	return nameLink.href.split('/').slice(-1);
 }
 function insertColumn(table, index, title, colInsertFunc){
-    index = index > 0 ? (index + 1) : table.querySelectorAll('thead th').length;
+    index = index >= 0 ? (index + 1) : table.querySelectorAll('thead th').length;
 
     if(title){
         var headerCol = table.querySelector(`thead th:nth-of-type(${index})`);
@@ -164,7 +158,7 @@ function insertColumn(table, index, title, colInsertFunc){
     
     }
 
-	index -= 1;
+	index = index - 1;
     if(colInsertFunc){
         table.querySelectorAll('#dvContent tbody tr').forEach(function(row){
             var cols = row.cells;
@@ -175,21 +169,57 @@ function insertColumn(table, index, title, colInsertFunc){
 	
 }
 function renderTable(sContent, truncat_num) {
+    // if contains 'Too many results', show error info
+    if(sContent.includes('Too many results')) {
+        // strip number from '<i><strong>number</strong></i>'
+        var num = sContent.match(/<i><strong>(\d+)<\/strong><\/i>/)[1];
+        alert(`返回了【${num}】条数据，数据量过大，请缩小范围再试，例如限制【等级分下限】。`);
+        return;
+    }
+    // trim any script firstly
+    sContent = sContent.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+    // truncate rows of table, before render it
+    var parser = new DOMParser();
+    var doc = parser.parseFromString(sContent, 'text/html');
+    var table = doc.querySelector('table');
+    // if the first row contains colspan, remove the entire row
+    if(table.rows[0].cells[0].colSpan > 1) table.deleteRow(0);
+    while (table.rows.length > truncat_num + 1) {
+        table.deleteRow(truncat_num + 1);
+    }
+
     var dvContent = $('dvContent');
-    Element.update(dvContent, sContent);
+    // Element.update(dvContent, sContent);
+    Element.update(dvContent, table.outerHTML);
 
     // remove redundent elements
     // dvContent.removeChild(dvContent.querySelector('div.title-page-sm'));
-    dvContent.removeChild(dvContent.querySelector('div.title-page'));
+    var titleDiv = dvContent.querySelector('div.title-page')
+    if (titleDiv) 
+        dvContent.removeChild(titleDiv);
 
-	table = document.querySelector('#dvContent table'); 
+    var scriptBlock = dvContent.querySelector('script')
+    if (scriptBlock) 
+        dvContent.removeChild(scriptBlock);
 
+	table = dvContent.querySelector('table'); 
 
 	// update table header
-	updateHeaderDisplay(table);
+	var indexedHeaderDict = updateHeaderDisplay(table);
 
 	// update table style
-	updateContentDisplay(table)
+	updateContentDisplay(table, indexedHeaderDict)
+
+    // if there is no index column, just add one, which is showing '#' at header and the row number in each row
+    if(indexedHeaderDict['#'] === undefined) {
+        insertColumn(table, 0, '#');
+        table.querySelectorAll('tbody tr').forEach(function(row, index){
+            var col = document.createElement('td');
+            col.innerText = index + 1;
+            row.insertBefore(col, row.cells[0]);
+        });
+    }
 
     // truncat rows
     var rowsCount = table.rows.length - 1; // exclude header row
@@ -226,7 +256,8 @@ function renderTable(sContent, truncat_num) {
     Element.update('dvHints', hints);
     
     // update with sex and other info, and then assembly editor table: copy the data table and remove rows with zname, then change the edit column
-    updateExtraInfo(table).then(data => {assemblyEditorTable()});
+    // updateExtraInfo(table).then(data => {assemblyEditorTable()});
+    assemblyEditorTable();
     
     // insert edit column
     insertColumn(table, 3, '编辑', function(row, sibling){
@@ -300,7 +331,7 @@ function editRow(id, lnk) {
     var tbl = $('dvEditableContent').querySelector('table tbody');
     var newRow = tbl.insertRow();
     newRow.innerHTML = rawRow.innerHTML;
-    // newRow.deleteCell(3); // delete the zname column
+    newRow.deleteCell(3); // delete the editor column
     newRow.setAttribute('_id', id);
     newRow.className = rawRow.className;
     updateZnameEditor(newRow, rawRow.cells[2].innerText); // update with zname
