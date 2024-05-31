@@ -399,9 +399,12 @@ function copyContent(){
     var tbl = $('dvContent').querySelector('table');
     var txt = $('txtContent');
     var rowTextArr = [];
-    var excludedCols = [3, 4, 6, 8];
+    var excludedCols = tbl.rows[0].children.length == 9 ? [3, 6, 8] : [3, 4]; // 编辑，换名，12月平均 | 编辑
     Array.from(tbl.rows).forEach(function(row){
-        var textArr = Array.from(row.cells).filter(function(it,index){return !excludedCols.include(index)}).map(it=> it.innerText.trim());
+        var textArr = Array.from(row.cells).filter(
+            function(it,index){return !excludedCols.include(index)}
+        ).map(it=> it.innerText.trim());
+
         rowTextArr.push(textArr.join('	'));
     })
     txt.textContent = rowTextArr.join('\n');
