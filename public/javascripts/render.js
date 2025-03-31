@@ -255,10 +255,17 @@ function renderTable(sContent, truncat_num) {
     hints += (countNone > 0) ? '同时有（ <font color="#dd1a2a">' + countNone + '</font> ）人未在库中或更易了英文名，需要处理:' : '';
     Element.update('dvHints', hints);
     
+    var flagImgs = Array.from(table.getElementsByTagName('img'));
+    flagImgs.forEach(function(elm){
+        var fide = elm.parentElement.parentElement.getAttribute('_country');
+        elm.src = elm.src.replace(/flags\/[a-z]+\.svg$/, 'svg/' + fide + '.svg');
+            
+    })
+
     // update with sex and other info, and then assembly editor table: copy the data table and remove rows with zname, then change the edit column
     // updateExtraInfo(table).then(data => {assemblyEditorTable()});
     assemblyEditorTable();
-    
+
     // insert edit column
     insertColumn(table, 3, '编辑', function(row, sibling){
 		var profileId = row.getAttribute('_id');
@@ -399,12 +406,22 @@ function copyContent(){
     var tbl = $('dvContent').querySelector('table');
     var txt = $('txtContent');
     var rowTextArr = [];
-    var excludedCols = tbl.rows[0].children.length == 9 ? [3, 6, 8] : [3, 4]; // 编辑，换名，12月平均 | 编辑
+    // var excludedCols = tbl.rows[0].children.length == 9 ? [3, 6, 8] : [3, 4]; // 编辑，换名，12月平均 | 编辑
+	var includedNames = ['#', '中文名', '棋协', '等级分', '出生年份'];
+	var excludedCols = Array.from(tbl.rows[0].cells).map((_, index) => includedNames.include(_.textContent) ? index : -1).filter( i=>i>=0);
+     
     Array.from(tbl.rows).forEach(function(row){
         var textArr = Array.from(row.cells).filter(
-            function(it,index){return !excludedCols.include(index)}
+            function(it,index){return excludedCols.include(index)}
         ).map(it=> it.innerText.trim());
-
+        // 如果是第一行
+        if(row.rowIndex == 0){
+            textArr = textArr.map(name => {
+                if (name === "中文名") return "姓名";
+                if (name === "出生年份") return "出生";
+                return name;
+              });
+        }
         rowTextArr.push(textArr.join('	'));
     })
     txt.textContent = rowTextArr.join('\n');
