@@ -83,8 +83,9 @@ block content
       #dvHints
       #dvEditableContent(style={display: 'none'})
       #divOperationBar 
-        button(onclick="updateConfig()") 更新数据
-        button(onclick="copyContent()") 拷贝数据    
+        button(onclick="updateConfig()") 更新
+        button(onclick="copyContent(false)") 拷贝
+        button(onclick="copyContent(true)") 拷贝英文名
 
       #dvContent(style={display: 'none'})
       textarea(id="txtContent")

@@ -402,12 +402,12 @@ function toggleLoadingTips(show) {
 
 }
 
-function copyContent(){
+function copyContent(useEnglishName){
     var tbl = $('dvContent').querySelector('table');
     var txt = $('txtContent');
     var rowTextArr = [];
     // var excludedCols = tbl.rows[0].children.length == 9 ? [3, 6, 8] : [3, 4]; // 编辑，换名，12月平均 | 编辑
-	var includedNames = ['#', '中文名', '棋协', '等级分', '出生年份'];
+	var includedNames = useEnglishName ? ['#', '姓名', '棋协', '等级分', '出生年份'] : ['#', '中文名', '棋协', '等级分', '出生年份'];
 	var excludedCols = Array.from(tbl.rows[0].cells).map((_, index) => includedNames.include(_.textContent) ? index : -1).filter( i=>i>=0);
      
     Array.from(tbl.rows).forEach(function(row){
